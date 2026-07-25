@@ -4,6 +4,7 @@ import { RouterProvider } from "react-router/dom";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools/production";
 import { router } from "./app/routes/router";
 import { Suspense, useEffect, useState } from "react";
+import { Toaster } from "./components/ui/sonner";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,8 @@ function App() {
           <ReactQueryDevtools initialIsOpen={false} />
         </Suspense>
       )}
+
+      <Toaster />
     </QueryClientProvider>
   );
 }

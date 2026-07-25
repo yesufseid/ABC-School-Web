@@ -4,8 +4,12 @@ import type {
   UseQueryOptions,
 } from "@tanstack/react-query";
 import { api } from "./http";
+import { toast } from "sonner";
 
-export function useFetchQuery<TData, TError = Error>(
+export function useFetchQuery<
+  TData,
+  TError extends { message: string } = Error,
+>(
   url: string,
   key: string[],
   params?: Record<string, string | number | boolean>,
@@ -16,7 +20,6 @@ export function useFetchQuery<TData, TError = Error>(
   return useQuery<TData, TError>({
     queryKey,
     queryFn: () => api.get(url, { params }),
-    // handle error toast with sonner
     ...options,
   });
 }
@@ -62,7 +65,7 @@ export function useApiMutation<
     },
     onSuccess: (data, variables) => {
       if (options?.successMessage) {
-        // Todo: handle sonner success toast here
+        toast.success(options.successMessage);
       }
 
       if (options?.invalidateQueries) {
@@ -75,9 +78,9 @@ export function useApiMutation<
       options?.onSuccess?.(data, variables);
     },
     onError: (error, variables) => {
-      // Todo: handle toast error with the message
-      // const message =
-      //   options?.errorMessage || error?.message || "Operation Failed";
+      const message =
+        options?.errorMessage || error?.message || "Operation Failed";
+      toast.error(message);
 
       options?.onError?.(error, variables);
     },
