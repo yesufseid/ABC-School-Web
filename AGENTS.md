@@ -91,6 +91,33 @@ No other suffixes are allowed. Layouts are the sole exception to the PascalCase 
 
 ---
 
+## Import Conventions
+
+All intra‑codebase imports must use the `@/` path alias (e.g., `@/lib/api/http`).
+
+**Exception:** Files in the **same directory** that belong to the **same context/layer** may use relative imports (`./`).
+
+Same context = same abstraction layer, same concern, co‑dependent plumbing files.
+
+- **Same dir + same layer → relative:** `src/lib/store/hooks.ts` imports `./store` because both are Redux store plumbing.
+- **Same dir + different layer → `@/`:** `src/lib/api/query.ts` imports `@/lib/api/http` because query wrappers and the HTTP client are different abstraction layers.
+- **Different dir (always `@/`):** `src/lib/api/http.ts` imports `@/lib/store` — cross‑directory, always use the alias.
+
+```ts
+// Same dir, same layer → relative
+import type { AppDispatch, RootState } from "./store";
+
+// Same dir, different layer → @/
+import { api } from "@/lib/api/http";
+
+// Different dir → always @/
+import { store } from "@/lib/store";
+```
+
+When in doubt, use `@/`.
+
+---
+
 ## Redux (Auth & Prefs Only)
 
 - Store lives in src/lib/store/.
@@ -443,7 +470,7 @@ queryClient.invalidateQueries({ queryKey: productKeys.lists() });
 1. Never put server data in Redux – Tanstack owns all API state.
 2. Never call useNavigate in render – use declarative Navigate for redirects (except event handlers like onClick).
 3. `useApiMutation` requires `mutationOptions` – pass `{}` if you have no extra callbacks.
-4. Use absolute imports from `@/` (e.g., `@/lib/store/hooks`).
+4. Use absolute imports from `@/` (e.g., `@/lib/store/hooks`). Exception: same‑directory files with the same context may use relative imports (`./`).
 5. Pages should be thin – delegate logic to custom hooks or child components.
 6. Feature components use `.component.tsx` suffix – never PascalCase outside layouts/.
 7. Feature API files use `.api.ts` suffix and export typed hooks and query keys.

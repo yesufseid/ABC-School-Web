@@ -1,9 +1,9 @@
 import { createBrowserRouter, redirect } from "react-router";
-import AuthLayout from "../../components/layouts/AuthLayout.tsx";
-import MainLayout from "../../components/layouts/MainLayout.tsx";
-import { LoginPage } from "../../features/auth/pages/login.page.tsx";
-import Index from "../../Index.tsx";
-import ProtectedRoute from "../../components/layouts/ProtectedRoute.tsx";
+import AuthLayout from "@/components/layouts/AuthLayout.tsx";
+import MainLayout from "@/components/layouts/MainLayout.tsx";
+import { LoginPage } from "@/features/auth/pages/login.page.tsx";
+import Index from "@/Index.tsx";
+import ProtectedRoute from "@/components/layouts/ProtectedRoute.tsx";
 
 export const router = createBrowserRouter([
   {

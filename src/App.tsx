@@ -2,9 +2,9 @@ import "./App.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools/production";
 import { RouterProvider } from "react-router";
-import { router } from "./app/routes/router";
+import { router } from "@/app/routes/router";
 import { Suspense, useEffect, useState } from "react";
-import { Toaster } from "./components/ui/sonner";
+import { Toaster } from "@/components/ui/sonner";
 
 const queryClient = new QueryClient();
 

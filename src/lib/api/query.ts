@@ -3,7 +3,7 @@ import type {
   UseMutationOptions,
   UseQueryOptions,
 } from "@tanstack/react-query";
-import { api } from "./http";
+import { api } from "@/lib/api/http";
 import { toast } from "sonner";
 
 export function useFetchQuery<
