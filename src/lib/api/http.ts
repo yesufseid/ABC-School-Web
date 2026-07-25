@@ -1,13 +1,14 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
+import type { AxiosError } from "axios";
 import { store } from "@/lib/store";
 import { logout } from "@/lib/store/slices/auth.slice";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000/",
+  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000/api/v1/",
   withCredentials: true,
 });
 
-const publicRoutes = ["/login"];
+const publicRoutes = ["/auth/login"];
 
 function logoutAndRedirect() {
   store.dispatch(logout());
@@ -36,6 +37,8 @@ api.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     const status = error.response?.status;
+
+    console.log(error);
 
     if (status === 401) {
       logoutAndRedirect();

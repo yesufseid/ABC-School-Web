@@ -4,7 +4,7 @@
 
 React + TypeScript application using:
 
-- React Router v7 (Component prop, not element)
+- React Router v8 (Component prop, not element)
 - Redux Toolkit (global slices only for auth & user prefs)
 - Tanstack Query (server state via wrappers)
 - Axios (interceptors with auto‑refresh on 401)
@@ -31,6 +31,7 @@ React + TypeScript application using:
 │   │   └── sonner.tsx
 │   └── custom/
 │       ├── button.tsx
+│       ├── custom-table.tsx
 │       └── select.tsx
 ├── features/
 │   └── auth/
@@ -46,8 +47,11 @@ React + TypeScript application using:
 │       │   └── auth.api.ts
 │       ├── schemas/
 │       │   └── login.schema.ts
+│       ├── helpers.ts
 │       └── types/
 │           └── user.types.ts
+├── utils/
+│   └── date.helpers.ts
 ├── lib/
 │   ├── api/
 │   │   ├── http.ts
@@ -84,9 +88,11 @@ React + TypeScript application using:
 | Redux slices                 | kebab‑case.slice.ts             | auth.slice.ts                             |
 | shadcn/ui raw                | lowercase.tsx                   | button.tsx, dialog.tsx                    |
 | Custom wrappers              | lowercase.tsx (in custom/)      | button.tsx, select.tsx                    |
+| Feature helpers              | helpers.ts                      | helpers.ts                                |
+| Global helpers               | <domain>.helpers.ts             | date.helpers.ts, string.helpers.ts        |
 | Feature folders              | kebab‑case                      | auth, product-management                  |
 
-**Suffix list:** page, form, component, api, schema, types, slice.
+**Suffix list:** page, form, component, api, schema, types, slice, helpers.
 No other suffixes are allowed. Layouts are the sole exception to the PascalCase rule.
 
 ---
@@ -116,13 +122,103 @@ import { store } from "@/lib/store";
 
 When in doubt, use `@/`.
 
+### Import Grouping: Values Before Types
+
+Imports must be split into separate statements: **values first, types last**. Never mix values and types in a single import.
+
+```ts
+// ✅ Correct — values first, then types
+import { useNavigate } from "react-router";
+import { useAppSelector } from "@/lib/store";
+import { Button } from "@/components/ui/button";
+import type { School } from "../types/school.types";
+import type { DashboardStats } from "../types/dashboard.types";
+
+// ✅ Correct — inline type-only import is fine for single type
+import { useFetchQuery } from "@/lib/api/query";
+import type { Product } from "../types/product.types";
+
+// ❌ Wrong — mixed value + type in one statement
+import { Button, type School } from "@/components/ui/button";
+
+// ❌ Wrong — types mixed in with values
+import { useNavigate } from "react-router";
+import type { School } from "../types/school.types";
+import { useAppSelector } from "@/lib/store";
+```
+
+- Value imports (`import { X }`) go first.
+- Type-only imports (`import type { X }`) go last.
+- Each import statement is either all values or all types, never both.
+
+---
+
+## Export & Declaration Conventions
+
+All feature files (pages, components, forms, API hooks) use **named exports** with **traditional `function` declarations**. No arrow function components.
+
+| Item | Pattern | Example |
+|------|---------|---------|
+| Layouts | `export default function Name()` | `export default function MainLayout()` |
+| Pages | `export function Name()` | `export function DashboardPage()` |
+| Feature components | `export function Name()` | `export function SchoolsTable()` |
+| Feature forms | `export function Name()` | `export function LoginForm()` |
+| API hooks | `export function useXxx()` | `export function useFetchSchools()` |
+| Query keys | `export const xxxKeys = {}` | `export const schoolKeys = {}` |
+| Schemas | `export const schema = z...` | `export const loginSchema = z.object(...)` |
+| Types | `export type Name = ...` | `export type User = {...}` |
+| UI components | Private `function` + barrel `export { Name }` | `function Button() {...}; export { Button }` |
+
+- Layouts are the **only** files that use `export default`. Everything else is a named export.
+- All React components use `function` declarations, never arrow functions (`const X = () => {}`).
+- Query key objects use `export const` (not `export function`).
+- Schema/type files export the Zod schema as `export const` and the inferred type as `export type`.
+
+---
+
+## Helpers
+
+Plain exported functions — no React, no hooks, no side effects. Two tiers:
+
+### Feature helpers (`features/<name>/helpers.ts`)
+
+Domain‑specific conversions scoped to one feature. Named `helpers.ts` (the feature folder provides context).
+
+```ts
+// features/schools/helpers.ts
+import type { DetailEntry } from "./types/school.types";
+
+export function recordToEntries(
+  record: Record<string, string | number | boolean> | null | undefined,
+): DetailEntry[] { ... }
+
+export function entriesToRecord(
+  entries: DetailEntry[] | undefined,
+): Record<string, string | number | boolean> { ... }
+```
+
+Import with `../helpers` (same feature) or `@/features/<name>/helpers` (cross‑feature, rare).
+
+### Global helpers (`src/utils/<domain>.helpers.ts`)
+
+Reusable, domain‑labelled utilities shared across features. Named `<domain>.helpers.ts` to avoid conflicts.
+
+```
+src/utils/
+├── date.helpers.ts
+├── string.helpers.ts
+└── ...
+```
+
+Import with `@/utils/date.helpers`.
+
 ---
 
 ## Redux (Auth & Prefs Only)
 
 - Store lives in src/lib/store/.
-- Always import useAppDispatch and useAppSelector from @/lib/store/hooks.
-- Never use raw useDispatch or useSelector.
+- Always import useAppDispatch and useAppSelector from `@/lib/store` (barrel export).
+- Never import directly from `@/lib/store/hooks` or use raw useDispatch/useSelector.
 
 Auth slice shape (from auth.slice.ts):
 
@@ -133,7 +229,7 @@ type AuthState =
   | { accessToken: null; user: null };
 ````
 
-- Check authentication: state.auth.accessToken !== null.
+- Check authentication: state.auth.user !== null.
 - Actions: setCredentials, updateAccessToken, updateUser, logout.
 
 ---
@@ -271,14 +367,13 @@ export function useDeleteProduct() {
 **ProtectedRoute implementation:**
 
 ```tsx
-import { Outlet, Navigate, useLocation } from "react-route";
-import { useAppSelector } from "@/lib/store/hooks";
+import { Outlet, Navigate, useLocation } from "react-router";
+import { useAppSelector } from "@/lib/store";
 
-export const ProtectedRoute = () => {
-  const { accessToken } = useAppSelector((state) => state.auth);
-  const location = useLocation();
+export function ProtectedRoute() {
+  const { user } = useAppSelector((state) => state.auth);  const location = useLocation();
 
-  if (!accessToken) {
+  if (!user) {
     return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }
   return <Outlet />;
@@ -334,6 +429,7 @@ feature-name/
 │   └── feature-name.api.ts         # typed hooks and query keys
 ├── schemas/
 │   └── feature-name.schema.ts      # exports schema + inferred type
+├── helpers.ts                       # optional: domain-specific helper functions
 └── types/
     └── feature-name.types.ts
 ```
@@ -400,7 +496,7 @@ export function useCreateProduct() {
 import { useFetchProducts } from "../api/products.api";
 import { ProductCard } from "../components/product-card.component";
 
-export const ProductListPage = () => {
+export function ProductListPage() {
   const { data, isLoading } = useFetchProducts({ page: 1 });
 
   if (isLoading) return <div>Loading...</div>;
@@ -427,7 +523,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-export const ProductForm = () => {
+export function ProductForm() {
   const createProduct = useCreateProduct();
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
@@ -470,7 +566,7 @@ queryClient.invalidateQueries({ queryKey: productKeys.lists() });
 1. Never put server data in Redux – Tanstack owns all API state.
 2. Never call useNavigate in render – use declarative Navigate for redirects (except event handlers like onClick).
 3. `useApiMutation` requires `mutationOptions` – pass `{}` if you have no extra callbacks.
-4. Use absolute imports from `@/` (e.g., `@/lib/store/hooks`). Exception: same‑directory files with the same context may use relative imports (`./`).
+4. Use absolute imports from `@/` (e.g., `@/lib/store`). Exception: same‑directory files with the same context may use relative imports (`./`).
 5. Pages should be thin – delegate logic to custom hooks or child components.
 6. Feature components use `.component.tsx` suffix – never PascalCase outside layouts/.
 7. Feature API files use `.api.ts` suffix and export typed hooks and query keys.

@@ -1,0 +1,7 @@
+export const API = {
+  AUTH_LOGIN: "/auth/login",
+  TENANTS: "/tenant",
+  TENANT_SUBSCRIBE: "/tenant/subscribe",
+  SUBSCRIPTIONS: "/subscription",
+  ANALYTICS_DASHBOARD: "/analytics/dashboard",
+} as const;

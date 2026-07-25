@@ -11,15 +11,20 @@ export function useFetchQuery<
   TError extends { message: string } = Error,
 >(
   url: string,
-  key: string[],
+  key: readonly string[],
   params?: Record<string, string | number | boolean>,
   options?: Omit<UseQueryOptions<TData, TError>, "queryKey" | "queryFn">,
 ) {
   const queryKey = params ? [...key, { params }] : key;
 
+  const queryFn = async () => {
+    const response = await api.get(url, { params });
+    return response.data;
+  };
+
   return useQuery<TData, TError>({
     queryKey,
-    queryFn: () => api.get(url, { params }),
+    queryFn,
     ...options,
   });
 }
@@ -38,7 +43,7 @@ export function useApiMutation<
     onSuccess?: (data: TData, variables: TVariables) => void;
     onError?: (error: TError, variables: TVariables) => void;
     invalidateQueries?: {
-      key: string[];
+      key: readonly string[];
       params?: Record<string, string | number | boolean>;
     }[];
     mutationOptions: Omit<
