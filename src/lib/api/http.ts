@@ -11,7 +11,7 @@ const publicRoutes = ["/login"];
 
 function logoutAndRedirect() {
   store.dispatch(logout());
-  window.location.replace(`${window.location.origin}/login`);
+  window.location.replace(`${window.location.origin}/auth/login`);
 }
 
 api.interceptors.request.use((config) => {
