@@ -235,7 +235,7 @@ export function useDeleteProduct() {
 
 ---
 
-## Routing (React Router v7)
+## Routing (React Router v8)
 
 - Config file: src/app/routes/router.ts
 - Use the Component prop (not element).
@@ -244,7 +244,7 @@ export function useDeleteProduct() {
 **ProtectedRoute implementation:**
 
 ```tsx
-import { Outlet, Navigate, useLocation } from "react-router-dom";
+import { Outlet, Navigate, useLocation } from "react-route";
 import { useAppSelector } from "@/lib/store/hooks";
 
 export const ProtectedRoute = () => {
