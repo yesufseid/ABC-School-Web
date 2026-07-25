@@ -4,7 +4,7 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 type User = {
   name: string;
   phoneNumber: string;
-  type: string;
+  type: "Owner";
   subscriptionEndDate?: string;
 };
 

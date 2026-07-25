@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from "react-router";
-import { UserMenu } from "@/components/custom/user-menu.component";
+import { UserMenu } from "@/components/custom/user-menu";
 
 const navItems = [
   { to: "/", label: "Dashboard", end: true },

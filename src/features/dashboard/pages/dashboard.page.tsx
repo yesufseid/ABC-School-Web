@@ -1,22 +1,54 @@
-import { LayoutDashboardIcon } from "lucide-react";
+import { LoaderCircleIcon } from "lucide-react";
+import { useDashboardStats } from "../api/dashboard.api";
+import { StatsCards } from "../components/stats-card.component";
+import { SubscriptionsByPlanChart } from "../components/subscriptions-by-plan-chart.component";
+import { RevenueChart } from "../components/revenue-chart.component";
+import { RecentSubscriptionsTable } from "../components/recent-subscriptions-table.component";
 
 export function DashboardPage() {
-  return (
-    <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center">
-      <div className="flex flex-col items-center gap-4 rounded-2xl border border-border/50 bg-card/50 p-12 text-center shadow-lg shadow-black/10 backdrop-blur-sm">
-        <div className="flex size-16 items-center justify-center rounded-xl bg-primary/10">
-          <LayoutDashboardIcon className="size-8 text-primary" />
-        </div>
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            Dashboard
-          </h1>
-          <p className="text-muted-foreground">
-            This feature is under development.
-          </p>
-        </div>
-        <p className="text-sm text-muted-foreground/70">Check back soon.</p>
+  const { data, isLoading, isError } = useDashboardStats();
+  const stats = data?.data;
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center">
+        <LoaderCircleIcon className="size-8 animate-spin text-muted-foreground" />
       </div>
+    );
+  }
+
+  if (isError || !stats) {
+    return (
+      <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center">
+        <p className="text-sm text-destructive">
+          Failed to load dashboard data.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-muted-foreground">
+          Overview of your schools and subscriptions.
+        </p>
+      </div>
+
+      <StatsCards
+        totalSchools={stats.totalSchools}
+        totalSubscriptionPlans={stats.totalSubscriptionPlans}
+        totalActiveSubscriptions={stats.totalActiveSubscriptions}
+        totalRevenue={stats.totalRevenue}
+      />
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <SubscriptionsByPlanChart data={stats.subscriptionsByPlan} />
+        <RevenueChart data={stats.subscriptionsByPlan} />
+      </div>
+
+      <RecentSubscriptionsTable data={stats.recentSubscriptions} />
     </div>
   );
 }

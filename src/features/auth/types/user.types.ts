@@ -1,7 +1,7 @@
 export type User = {
   name: string;
   phoneNumber: string;
-  type: string;
+  type: "Owner";
   subscriptionEndDate?: string;
 };
 
@@ -10,7 +10,7 @@ export type LoginResponse = {
     accessToken: string;
     phoneNumber: string;
     name: string;
-    type: string;
+    type: "Owner";
     subscriptionEndDate?: string;
   };
 };

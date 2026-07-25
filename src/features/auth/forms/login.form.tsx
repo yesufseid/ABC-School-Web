@@ -1,10 +1,11 @@
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, useLocation } from "react-router";
-import { useAppDispatch } from "@/lib/store/hooks";
+import { useAppDispatch } from "@/lib/store";
 import { setCredentials } from "@/lib/store/slices/auth.slice";
 import { useLogin } from "../api/auth.api";
-import { loginSchema, type LoginFormValues } from "../schemas/login.schema";
+import { loginSchema } from "../schemas/login.schema";
+import type { LoginFormValues } from "../schemas/login.schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -22,6 +23,10 @@ export function LoginForm() {
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      phoneNumber: "",
+      password: "",
+    },
   });
 
   const onSubmit = (values: LoginFormValues) => {

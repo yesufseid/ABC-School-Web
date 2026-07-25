@@ -1,4 +1,5 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
+import type { AxiosError } from "axios";
 import { store } from "@/lib/store";
 import { logout } from "@/lib/store/slices/auth.slice";
 

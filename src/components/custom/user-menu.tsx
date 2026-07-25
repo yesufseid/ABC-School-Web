@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import { useAppSelector, useAppDispatch } from "@/lib/store/hooks";
+import { useAppSelector, useAppDispatch } from "@/lib/store";
 import { logout } from "@/lib/store/slices/auth.slice";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
