@@ -4,7 +4,7 @@
 
 React + TypeScript application using:
 
-- React Router v7 (Component prop, not element)
+- React Router v8 (Component prop, not element)
 - Redux Toolkit (global slices only for auth & user prefs)
 - Tanstack Query (server state via wrappers)
 - Axios (interceptors with auto‑refresh on 401)
@@ -133,7 +133,7 @@ type AuthState =
   | { accessToken: null; user: null };
 ````
 
-- Check authentication: state.auth.accessToken !== null.
+- Check authentication: state.auth.user !== null.
 - Actions: setCredentials, updateAccessToken, updateUser, logout.
 
 ---
@@ -271,14 +271,14 @@ export function useDeleteProduct() {
 **ProtectedRoute implementation:**
 
 ```tsx
-import { Outlet, Navigate, useLocation } from "react-route";
+import { Outlet, Navigate, useLocation } from "react-router";
 import { useAppSelector } from "@/lib/store/hooks";
 
 export const ProtectedRoute = () => {
-  const { accessToken } = useAppSelector((state) => state.auth);
+  const { user } = useAppSelector((state) => state.auth);
   const location = useLocation();
 
-  if (!accessToken) {
+  if (!user) {
     return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }
   return <Outlet />;
