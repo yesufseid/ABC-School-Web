@@ -61,6 +61,8 @@ function SchoolFormContent({
       password: "",
       name: school?.name ?? "",
       description: school?.description ?? "",
+      branchCode: school?.branchCode ?? "",
+      branchPrefix: school?.branchPrefix ?? "",
       details: [],
     },
   });
@@ -219,10 +221,57 @@ function SchoolFormContent({
             )}
           />
           {errors.description && (
-            <p className="text-sm text-destructive">
-              {errors.description.message}
-            </p>
-          )}
+              <p className="text-sm text-destructive">
+                {errors.description.message}
+              </p>
+            )}
+          </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">
+              Branch Code
+            </label>
+            <Controller
+              control={control}
+              name="branchCode"
+              render={({ field }) => (
+                <Input
+                  placeholder="e.g. CRZ"
+                  aria-invalid={!!errors.branchCode}
+                  {...field}
+                />
+              )}
+            />
+            {errors.branchCode && (
+              <p className="text-sm text-destructive">
+                {errors.branchCode.message}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">
+              Branch Prefix
+            </label>
+            <Controller
+              control={control}
+              name="branchPrefix"
+              render={({ field }) => (
+                <Input
+                  placeholder="e.g. CRZ"
+                  disabled={isEditing}
+                  aria-invalid={!!errors.branchPrefix}
+                  {...field}
+                />
+              )}
+            />
+            {errors.branchPrefix && (
+              <p className="text-sm text-destructive">
+                {errors.branchPrefix.message}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="space-y-2">

@@ -52,6 +52,13 @@ export function SchoolsTable({
       ),
     },
     {
+      title: "Branch",
+      key: "branchCode",
+      component: (value: School[keyof School]) => (
+        <span className="font-mono text-foreground">{String(value)}</span>
+      ),
+    },
+    {
       title: "Owner",
       key: "owner",
       component: (value: School[keyof School]) => (

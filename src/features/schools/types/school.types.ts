@@ -9,7 +9,9 @@ export type School = {
   id: string;
   name: string;
   description: string;
-  details: Record<string, string | number | boolean> | null;
+  branchCode: string;
+  branchPrefix: string;
+  details: Record<string, string | number | boolean>;
   createdAt: string;
   updatedAt: string;
   owner: SchoolOwner;
@@ -48,7 +50,9 @@ export type CreateSchoolInput = {
   password: string;
   name: string;
   description: string;
-  details?: Record<string, string | number | boolean>;
+  branchCode: string;
+  branchPrefix: string;
+  details: Record<string, string | number | boolean>;
 };
 
 export type UpdateSchoolInput = Omit<CreateSchoolInput, "password">;
