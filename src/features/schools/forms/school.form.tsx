@@ -23,7 +23,10 @@ import {
   schoolSchema,
   createSchoolSchema,
 } from "../schemas/school.schema";
-import type { SchoolFormValues } from "../schemas/school.schema";
+import type {
+  SchoolFormValues,
+  CreateSchoolFormValues,
+} from "../schemas/school.schema";
 import type { DetailEntry } from "../types/school.types";
 import { entriesToRecord, recordToEntries } from "../helpers";
 
@@ -70,7 +73,7 @@ function SchoolFormContent({
     handleSubmit,
     setError,
     formState: { errors },
-  } = useForm({
+  } = useForm<CreateSchoolFormValues>({
     resolver: zodResolver(isEditing ? schoolSchema : createSchoolSchema),
     defaultValues: {
       ownerPhone: school?.owner.phoneNumber ?? "",
@@ -79,54 +82,59 @@ function SchoolFormContent({
       name: school?.name ?? "",
       description: school?.description ?? "",
       details: [],
-      initialBranch: {
-        name: "",
-        description: "",
-        branchCode: "",
-        branchPrefix: "",
-        details: [],
-      },
+      ...(isEditing
+        ? {}
+        : {
+            initialBranch: {
+              name: "",
+              description: "",
+              branchCode: "",
+              branchPrefix: "",
+              details: [],
+            },
+          }),
     },
   });
 
-  const handleFormSubmit = (values: Record<string, unknown>) => {
-    if (!isEditing && (!values.password || String(values.password).length < 6)) {
+  const handleFormSubmit = (values: CreateSchoolFormValues) => {
+    const password = values.password ?? "";
+    if (!isEditing && password.length < 6) {
       setError("password", {
         message: "Password must be at least 6 characters",
       });
       return;
     }
 
-    const withDetails = {
-      ...values,
-      details: entriesToRecord(details),
-    };
+    const detailsRecord = entriesToRecord(details);
 
     if (isEditing) {
-      const { password: _password, initialBranch: _branch, ...rest } = withDetails;
-      void _password;
+      const { initialBranch: _branch, ...rest } = values;
       void _branch;
-      onSubmit(rest as Parameters<typeof onSubmit>[0]);
+      onSubmit({
+        ...rest,
+        password: values.password,
+        details: detailsRecord,
+      });
     } else {
-      const { initialBranch, ...schoolValues } = withDetails;
-      const branch = initialBranch as Record<string, unknown> | undefined;
+      const { initialBranch, ...schoolValues } = values;
       const hasBranch =
-        branch &&
-        (branch.name || branch.description || branch.branchCode || branch.branchPrefix);
+        initialBranch &&
+        (initialBranch.name ||
+          initialBranch.description ||
+          initialBranch.branchCode ||
+          initialBranch.branchPrefix);
 
       const payload: Parameters<typeof onSubmit>[0] = {
-        ...(schoolValues as Omit<SchoolFormValues, "details"> & {
-          details: Record<string, string | number | boolean>;
-          password?: string;
-        }),
+        ...schoolValues,
+        details: detailsRecord,
       };
 
       if (hasBranch) {
         payload.initialBranch = {
-          name: String(branch.name),
-          description: String(branch.description),
-          branchCode: String(branch.branchCode),
-          branchPrefix: String(branch.branchPrefix),
+          name: String(initialBranch.name),
+          description: String(initialBranch.description),
+          branchCode: String(initialBranch.branchCode),
+          branchPrefix: String(initialBranch.branchPrefix),
           details: entriesToRecord(branchDetails),
         };
       }
