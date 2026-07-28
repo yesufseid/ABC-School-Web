@@ -27,6 +27,8 @@ export const schoolSchema = z.object({
   password: z.string().optional(),
   name: z.string().min(1, "School name is required"),
   description: z.string().min(1, "Description is required"),
+  branchCode: z.string().min(1, "Branch code is required"),
+  branchPrefix: z.string().min(1, "Branch prefix is required"),
   details: z
     .array(
       z.object({

@@ -151,6 +151,14 @@ export function SchoolDetailPage() {
               <p className="text-sm font-medium">{school.owner.phoneNumber}</p>
             </div>
             <div>
+              <p className="text-xs text-muted-foreground">Branch Code</p>
+              <p className="text-sm font-medium font-mono">{school.branchCode}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Branch Prefix</p>
+              <p className="text-sm font-medium font-mono">{school.branchPrefix}</p>
+            </div>
+            <div>
               <p className="text-xs text-muted-foreground">Created</p>
               <p className="text-sm font-medium">
                 {format(parseISO(school.createdAt), "MMM d, yyyy 'at' h:mm a")}
