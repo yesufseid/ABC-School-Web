@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+const phoneRegex = /^\+?251(?:0?[79]|7|9)\d{8}$/;
+const localPhoneRegex = /^(?:0?[79]|7|9)\d{8}$/;
+
 export const schoolSchema = z.object({
   ownerPhone: z
     .string()
@@ -8,9 +11,9 @@ export const schoolSchema = z.object({
       (val) => {
         const digits = val.replace(/[\s\-()]/g, "");
         if (/^\+?251/.test(digits)) {
-          return /^\+?251(?:0?[79]|7|9)\d{8}$/.test(digits);
+          return phoneRegex.test(digits);
         }
-        return /^(?:0?[79]|7|9)\d{8}$/.test(digits);
+        return localPhoneRegex.test(digits);
       },
       {
         message:
@@ -26,6 +29,25 @@ export const schoolSchema = z.object({
   ownerName: z.string().min(1, "Owner name is required"),
   password: z.string().optional(),
   name: z.string().min(1, "School name is required"),
+  description: z.string().min(1, "Description is required"),
+  details: z
+    .array(
+      z.object({
+        key: z.string().min(1, "Key is required"),
+        value: z.union([
+          z.string().min(1, "Value is required"),
+          z.number(),
+          z.boolean(),
+        ]),
+      }),
+    )
+    .optional(),
+});
+
+export type SchoolFormValues = z.infer<typeof schoolSchema>;
+
+export const branchSchema = z.object({
+  name: z.string().min(1, "Branch name is required"),
   description: z.string().min(1, "Description is required"),
   branchCode: z.string().min(1, "Branch code is required"),
   branchPrefix: z.string().min(1, "Branch prefix is required"),
@@ -43,7 +65,25 @@ export const schoolSchema = z.object({
     .optional(),
 });
 
-export type SchoolFormValues = z.infer<typeof schoolSchema>;
+export type BranchFormValues = z.infer<typeof branchSchema>;
+
+const initialBranchSchema = branchSchema.partial().refine(
+  (val) => {
+    const hasAny = val.name || val.description || val.branchCode || val.branchPrefix;
+    if (!hasAny) return true;
+    return !!val.name && !!val.description && !!val.branchCode && !!val.branchPrefix;
+  },
+  {
+    message: "All branch fields are required when adding an initial branch",
+    path: ["name"],
+  },
+);
+
+export const createSchoolSchema = schoolSchema.extend({
+  initialBranch: initialBranchSchema.optional(),
+});
+
+export type CreateSchoolFormValues = z.infer<typeof createSchoolSchema>;
 
 export const subscribeSchoolSchema = z.object({
   subscriptionId: z.string().min(1, "Subscription is required"),
