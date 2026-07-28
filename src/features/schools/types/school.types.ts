@@ -9,8 +9,6 @@ export type School = {
   id: string;
   name: string;
   description: string;
-  branchCode: string;
-  branchPrefix: string;
   details: Record<string, string | number | boolean>;
   createdAt: string;
   updatedAt: string;
@@ -44,10 +42,19 @@ export type SchoolDetail = School & {
   tenantSubscriptions: SchoolSubscription[];
 };
 
-export type CreateSchoolInput = {
-  ownerPhone: string;
-  ownerName: string;
-  password: string;
+export type Branch = {
+  id: string;
+  name: string;
+  description: string;
+  branchCode: string;
+  branchPrefix: string;
+  details: Record<string, string | number | boolean>;
+  tenantId: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CreateBranchInput = {
   name: string;
   description: string;
   branchCode: string;
@@ -55,7 +62,19 @@ export type CreateSchoolInput = {
   details: Record<string, string | number | boolean>;
 };
 
-export type UpdateSchoolInput = Omit<CreateSchoolInput, "password">;
+export type UpdateBranchInput = Partial<CreateBranchInput>;
+
+export type CreateSchoolInput = {
+  ownerPhone: string;
+  ownerName: string;
+  password: string;
+  name: string;
+  description: string;
+  details: Record<string, string | number | boolean>;
+  branches?: CreateBranchInput[];
+};
+
+export type UpdateSchoolInput = Omit<CreateSchoolInput, "password" | "branches">;
 
 export type SubscribeSchoolInput = {
   tenantId: string;

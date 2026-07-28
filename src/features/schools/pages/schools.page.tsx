@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { PlusIcon, RefreshCwIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,12 +14,11 @@ import { SchoolForm } from "../forms/school.form";
 import { SubscribeSchool } from "../components/subscribe-school.component";
 import { ConfirmDialog } from "../components/confirm-dialog.component";
 import type { School } from "../types/school.types";
-import type {
-  SchoolFormValues,
-  SubscribeSchoolFormValues,
-} from "../schemas/school.schema";
+import type { SchoolFormValues } from "../schemas/school.schema";
+import type { SubscribeSchoolFormValues } from "../schemas/school.schema";
 
 export function SchoolsPage() {
+  const navigate = useNavigate();
   const { data, isLoading, refetch } = useFetchSchools();
   const schools = data?.data ?? [];
 
@@ -54,11 +54,19 @@ export function SchoolsPage() {
     values: Omit<SchoolFormValues, "details"> & {
       details: Record<string, string | number | boolean>;
       password?: string;
+      initialBranch?: {
+        name: string;
+        description: string;
+        branchCode: string;
+        branchPrefix: string;
+        details: Record<string, string | number | boolean>;
+      };
     },
   ) => {
     if (editingSchoolId) {
-      const { password: _password, ...rest } = values;
+      const { password: _password, initialBranch: _branch, ...rest } = values;
       void _password;
+      void _branch;
       updateSchool.mutate(rest, {
         onSuccess: () => {
           setSchoolFormOpen(false);
@@ -66,17 +74,23 @@ export function SchoolsPage() {
         },
       });
     } else {
-      createSchool.mutate(
-        {
-          ...values,
-          password: values.password ?? "",
+      const { initialBranch, ...schoolValues } = values;
+      const payload: Parameters<typeof createSchool.mutate>[0] = {
+        ...schoolValues,
+        password: schoolValues.password ?? "",
+        details: schoolValues.details,
+      };
+
+      if (initialBranch && initialBranch.name) {
+        payload.branches = [initialBranch];
+      }
+
+      createSchool.mutate(payload, {
+        onSuccess: (data) => {
+          setSchoolFormOpen(false);
+          navigate(`/schools/${data.tenantId}`);
         },
-        {
-          onSuccess: () => {
-            setSchoolFormOpen(false);
-          },
-        },
-      );
+      });
     }
   };
 
