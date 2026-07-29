@@ -1,10 +1,16 @@
-import { useFetchQuery } from "@/lib/api/query";
-import { API } from "@/lib/api/api.constants";
-import type { DashboardStats } from "../types/dashboard.types";
+import { useQuery } from "@tanstack/react-query";
+import { fetchMockDashboardAnalytics } from "../mocks/dashboard.mock";
+import type { DashboardAnalytics } from "../types/dashboard.types";
 
-export function useDashboardStats() {
-  return useFetchQuery<DashboardStats>(
-    API.ANALYTICS_DASHBOARD,
-    ["dashboard", "stats"],
-  );
+export const dashboardKeys = {
+  all: ["dashboard"] as const,
+  analytics: () => [...dashboardKeys.all, "analytics"] as const,
+};
+
+export function useDashboardAnalytics(options?: { enabled?: boolean }) {
+  return useQuery<DashboardAnalytics>({
+    queryKey: dashboardKeys.analytics(),
+    queryFn: fetchMockDashboardAnalytics,
+    enabled: options?.enabled ?? true,
+  });
 }
