@@ -1,12 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-
-type User = {
-  name: string;
-  phoneNumber: string;
-  type: "Owner";
-  subscriptionEndDate?: string;
-};
+import type { User } from "@/features/auth/types/user.types";
 
 type AuthenticatedState = {
   accessToken: string;
