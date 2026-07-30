@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { fetchMockDashboardAnalytics } from "../mocks/dashboard.mock";
+import { useFetchQuery } from "@/lib/api/query";
+import { API } from "@/lib/api/api.constants";
 import type { DashboardAnalytics } from "../types/dashboard.types";
 
 export const dashboardKeys = {
@@ -8,9 +8,10 @@ export const dashboardKeys = {
 };
 
 export function useDashboardAnalytics(options?: { enabled?: boolean }) {
-  return useQuery<DashboardAnalytics>({
-    queryKey: dashboardKeys.analytics(),
-    queryFn: fetchMockDashboardAnalytics,
-    enabled: options?.enabled ?? true,
-  });
+  return useFetchQuery<DashboardAnalytics>(
+    API.ANALYTICS_DASHBOARD,
+    dashboardKeys.analytics(),
+    undefined,
+    { enabled: options?.enabled ?? true },
+  );
 }
