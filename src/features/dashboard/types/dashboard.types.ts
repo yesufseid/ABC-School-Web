@@ -1,25 +1,29 @@
-export type SubscriptionPlanStat = {
-  subscriptionId: string;
-  name: string;
-  price: number;
-  tenantCount: number;
-  activeCount: number;
-  totalRevenue: number;
+export type SummaryStat = {
+  id: string;
+  label: string;
+  value: number;
+  growthPercent: number;
+  growthLabel: string;
 };
 
-export type DashboardStats = {
-  data: {
-    totalSchools: number;
-    totalSubscriptionPlans: number;
-    totalActiveSubscriptions: number;
-    totalRevenue: number;
-    subscriptionsByPlan: SubscriptionPlanStat[];
-    recentSubscriptions: Array<{
-      schoolName: string;
-      planName: string;
-      startDate: string;
-      endDate: string;
-      paidAmount: number;
-    }>;
-  };
+export type BranchDistributionItem = {
+  branch: string;
+  total: number;
+  percentage: number;
+  color: string;
 };
+
+export type DemographicSlice = {
+  label: string;
+  value: number;
+  color: string;
+};
+
+export type DashboardAnalytics = {
+  summaryStats: SummaryStat[];
+  branchDistribution: BranchDistributionItem[];
+  languageDistribution: DemographicSlice[];
+  sexDistribution: DemographicSlice[];
+};
+
+export type BranchDistributionFilter = "Students" | "Teachers" | "Parents";

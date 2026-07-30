@@ -1,15 +1,22 @@
 import { LoaderCircleIcon } from "lucide-react";
-import { useDashboardStats } from "../api/dashboard.api";
-import { StatsCards } from "../components/stats-card.component";
-import { SubscriptionsByPlanChart } from "../components/subscriptions-by-plan-chart.component";
-import { RevenueChart } from "../components/revenue-chart.component";
-import { RecentSubscriptionsTable } from "../components/recent-subscriptions-table.component";
+import { useAppSelector } from "@/lib/store";
+import { filterByRole } from "@/utils/rbac.helpers";
+import { useDashboardAnalytics } from "../api/dashboard.api";
+import { DASHBOARD_WIDGETS } from "../config/dashboard-widgets.config";
+import { SummaryStatsRow } from "../components/summary-stats-row.component";
+import { BranchDistributionChart } from "../components/branch-distribution-chart.component";
+import { DemographicsDistributionChart } from "../components/demographics-distribution-chart.component";
+import { DashboardWelcome } from "../components/dashboard-welcome.component";
 
 export function DashboardPage() {
-  const { data, isLoading, isError } = useDashboardStats();
-  const stats = data?.data;
+  const user = useAppSelector((state) => state.auth.user);
+  const visibleWidgets = filterByRole(DASHBOARD_WIDGETS, user?.type);
+  const needsAnalytics = visibleWidgets.some((widget) => widget.id !== "welcome");
+  const { data, isLoading, isError } = useDashboardAnalytics({
+    enabled: needsAnalytics,
+  });
 
-  if (isLoading) {
+  if (needsAnalytics && isLoading) {
     return (
       <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center">
         <LoaderCircleIcon className="size-8 animate-spin text-muted-foreground" />
@@ -17,7 +24,7 @@ export function DashboardPage() {
     );
   }
 
-  if (isError || !stats) {
+  if (needsAnalytics && (isError || !data)) {
     return (
       <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center">
         <p className="text-sm text-destructive">
@@ -27,28 +34,34 @@ export function DashboardPage() {
     );
   }
 
+  const showSummaryStats = visibleWidgets.some((w) => w.id === "summary-stats");
+  const showCharts = visibleWidgets.some(
+    (w) => w.id === "branch-distribution" || w.id === "demographics",
+  );
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Overview of your schools and subscriptions.
-        </p>
-      </div>
+      {visibleWidgets.some((w) => w.id === "welcome") && user && (
+        <DashboardWelcome userName={user.name} />
+      )}
 
-      <StatsCards
-        totalSchools={stats.totalSchools}
-        totalSubscriptionPlans={stats.totalSubscriptionPlans}
-        totalActiveSubscriptions={stats.totalActiveSubscriptions}
-        totalRevenue={stats.totalRevenue}
-      />
+      {showSummaryStats && data && (
+        <SummaryStatsRow stats={data.summaryStats} userRole={user?.type} />
+      )}
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <SubscriptionsByPlanChart data={stats.subscriptionsByPlan} />
-        <RevenueChart data={stats.subscriptionsByPlan} />
-      </div>
-
-      <RecentSubscriptionsTable data={stats.recentSubscriptions} />
+      {showCharts && data && (
+        <div className="grid gap-6 xl:grid-cols-2">
+          {visibleWidgets.some((w) => w.id === "branch-distribution") && (
+            <BranchDistributionChart data={data.branchDistribution} />
+          )}
+          {visibleWidgets.some((w) => w.id === "demographics") && (
+            <DemographicsDistributionChart
+              languageData={data.languageDistribution}
+              sexData={data.sexDistribution}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }
