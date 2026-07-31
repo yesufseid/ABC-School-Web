@@ -2,6 +2,7 @@ import axios from "axios";
 import type { AxiosError } from "axios";
 import { store } from "@/lib/store";
 import { logout } from "@/lib/store/slices/auth.slice";
+import { clearAuthState } from "@/lib/store/persist";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000/api/v1/",
@@ -11,6 +12,7 @@ const api = axios.create({
 const publicRoutes = ["/auth/login"];
 
 function logoutAndRedirect() {
+  clearAuthState();
   store.dispatch(logout());
   window.location.replace(`${window.location.origin}/auth/login`);
 }

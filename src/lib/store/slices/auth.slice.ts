@@ -7,7 +7,7 @@ type AuthenticatedState = {
   user: User;
 };
 
-type AuthInitialState =
+export type AuthState =
   | AuthenticatedState
   | {
       accessToken: null;
@@ -17,7 +17,7 @@ type AuthInitialState =
 const initialState = {
   accessToken: null,
   user: null,
-} as AuthInitialState;
+} as AuthState;
 
 export const authSlice = createSlice({
   name: "auth",

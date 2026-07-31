@@ -10,6 +10,8 @@ import {
   ClipboardCheckIcon,
   SchoolIcon,
   MessageSquareIcon,
+  Building2Icon,
+  CreditCardIcon,
 } from "lucide-react";
 import type { UserRole } from "@/features/auth/types/user.types";
 
@@ -88,5 +90,17 @@ export const NAV_ITEMS: NavItem[] = [
     to: "/messages",
     icon: MessageSquareIcon,
     roles: ["Admin", "Owner", "Principal", "Teacher", "Student"],
+  },
+  {
+    label: "Schools",
+    to: "/schools",
+    icon: Building2Icon,
+    roles: ["Admin", "Owner"],
+  },
+  {
+    label: "Subscriptions",
+    to: "/subscriptions",
+    icon: CreditCardIcon,
+    roles: ["Admin", "Owner"],
   },
 ];

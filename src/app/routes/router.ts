@@ -4,6 +4,10 @@ import MainLayout from "@/components/layouts/MainLayout.tsx";
 import { createRoleRoute } from "@/components/layouts/RoleRoute.tsx";
 import { LoginPage } from "@/features/auth/pages/login.page.tsx";
 import { DashboardPage } from "@/features/dashboard/pages/dashboard.page.tsx";
+import { SchoolsPage } from "@/features/schools/pages/schools.page.tsx";
+import { SchoolDetailPage } from "@/features/schools/pages/school-detail.page.tsx";
+import { SubscriptionsPage } from "@/features/subscriptions/pages/subscriptions.page.tsx";
+import { SubscriptionDetailPage } from "@/features/subscriptions/pages/subscription-detail.page.tsx";
 import { ComingSoonPage } from "@/features/shared/pages/coming-soon.page.tsx";
 import ProtectedRoute from "@/components/layouts/ProtectedRoute.tsx";
 
@@ -100,6 +104,22 @@ export const router = createBrowserRouter([
           {
             path: "messages",
             ...comingSoonRoute("Messages"),
+          },
+          {
+            path: "schools",
+            Component: createRoleRoute(["Admin", "Owner"]),
+            children: [
+              { index: true, Component: SchoolsPage },
+              { path: ":id", Component: SchoolDetailPage },
+            ],
+          },
+          {
+            path: "subscriptions",
+            Component: createRoleRoute(["Admin", "Owner"]),
+            children: [
+              { index: true, Component: SubscriptionsPage },
+              { path: ":id", Component: SubscriptionDetailPage },
+            ],
           },
         ],
       },

@@ -9,6 +9,8 @@ export type User = {
   name: string;
   phoneNumber: string;
   type: UserRole;
+  tenantId?: string;
+  branchId?: string;
   subscriptionEndDate?: string;
 };
 

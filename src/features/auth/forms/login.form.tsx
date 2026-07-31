@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, useLocation } from "react-router";
 import { useAppDispatch } from "@/lib/store";
 import { setCredentials } from "@/lib/store/slices/auth.slice";
+import { saveAuthState } from "@/lib/store/persist";
 import { useLogin } from "../api/auth.api";
 import { loginSchema } from "../schemas/login.schema";
 import type { LoginFormValues } from "../schemas/login.schema";
@@ -46,6 +47,15 @@ export function LoginForm() {
             },
           }),
         );
+        saveAuthState({
+          accessToken,
+          user: {
+            name,
+            phoneNumber,
+            type,
+            subscriptionEndDate,
+          },
+        });
         navigate(from, { replace: true });
       },
     });
