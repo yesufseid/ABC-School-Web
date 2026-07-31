@@ -1,33 +1,28 @@
 import { createBrowserRouter, redirect } from "react-router";
+import type { ComponentType } from "react";
 import AuthLayout from "@/components/layouts/AuthLayout.tsx";
 import MainLayout from "@/components/layouts/MainLayout.tsx";
-import { createRoleRoute } from "@/app/routes/create-role-route.tsx";
-import { LoginPage } from "@/features/auth/pages/login.page.tsx";
-import { DashboardPage } from "@/features/dashboard/pages/dashboard.page.tsx";
-import { StudentsPage } from "@/features/registration/pages/students.page.tsx";
-import { StudentDetailPage } from "@/features/registration/pages/student-detail.page.tsx";
-import { ClassesPage } from "@/features/classes/pages/classes.page.tsx";
-import { ClassDetailPage } from "@/features/classes/pages/class-detail.page.tsx";
-import { GradesPage } from "@/features/classes/pages/grades.page.tsx";
-import { TeachersPage } from "@/features/teachers/pages/teachers.page.tsx";
-import { TeacherDetailPage } from "@/features/teachers/pages/teacher-detail.page.tsx";
-import { PrincipalsPage } from "@/features/principals/pages/principals.page.tsx";
-import { PrincipalDetailPage } from "@/features/principals/pages/principal-detail.page.tsx";
-import { AttendancePage } from "@/features/attendance/pages/attendance.page.tsx";
-import { AcademicsPage } from "@/features/academics/pages/academics.page.tsx";
-import { SchedulesPage } from "@/features/schedules/pages/schedules.page.tsx";
-import { MaterialsPage } from "@/features/materials/pages/materials.page.tsx";
-import { MessagesPage } from "@/features/messages/pages/messages.page.tsx";
-import { SchoolsPage } from "@/features/schools/pages/schools.page.tsx";
-import { SchoolDetailPage } from "@/features/schools/pages/school-detail.page.tsx";
-import { SubscriptionsPage } from "@/features/subscriptions/pages/subscriptions.page.tsx";
-import { SubscriptionDetailPage } from "@/features/subscriptions/pages/subscription-detail.page.tsx";
-import { ComingSoonPage } from "@/features/shared/pages/coming-soon.page.tsx";
 import ProtectedRoute from "@/components/layouts/ProtectedRoute.tsx";
+import { createRoleRoute } from "@/app/routes/create-role-route.tsx";
+import { RouteErrorBoundary } from "@/components/layouts/RouteErrorBoundary";
+import { RouteFallback } from "@/components/layouts/RouteFallback";
+import { ROUTE_ACCESS } from "@/config/route-access.config";
+
+function lazyPage<M extends Record<string, ComponentType>>(
+  loader: () => Promise<M>,
+  name: keyof M,
+) {
+  return async () => ({
+    Component: (await loader())[name],
+  });
+}
 
 function comingSoonRoute(title: string) {
   return {
-    Component: ComingSoonPage,
+    lazy: lazyPage(
+      () => import("@/features/shared/pages/coming-soon.page"),
+      "ComingSoonPage",
+    ),
     handle: { title },
   };
 }
@@ -36,10 +31,15 @@ export const router = createBrowserRouter([
   {
     path: "auth",
     Component: AuthLayout,
+    ErrorBoundary: RouteErrorBoundary,
+    HydrateFallback: RouteFallback,
     children: [
       {
         path: "login",
-        Component: LoginPage,
+        lazy: lazyPage(
+          () => import("@/features/auth/pages/login.page"),
+          "LoginPage",
+        ),
       },
       {
         path: "*",
@@ -50,129 +50,229 @@ export const router = createBrowserRouter([
   {
     path: "/",
     Component: ProtectedRoute,
+    ErrorBoundary: RouteErrorBoundary,
+    HydrateFallback: RouteFallback,
     children: [
       {
         Component: MainLayout,
         children: [
           {
             index: true,
-            Component: DashboardPage,
+            lazy: lazyPage(
+              () => import("@/features/dashboard/pages/dashboard.page"),
+              "DashboardPage",
+            ),
           },
           {
             path: "students",
-            Component: createRoleRoute([
-              "Admin",
-              "Owner",
-              "Principal",
-              "Teacher",
-            ]),
+            Component: createRoleRoute(ROUTE_ACCESS["/students"]),
             children: [
-              { index: true, Component: StudentsPage },
-              { path: ":id", Component: StudentDetailPage },
+              {
+                index: true,
+                lazy: lazyPage(
+                  () =>
+                    import("@/features/registration/pages/students.page"),
+                  "StudentsPage",
+                ),
+              },
+              {
+                path: ":id",
+                lazy: lazyPage(
+                  () =>
+                    import(
+                      "@/features/registration/pages/student-detail.page"
+                    ),
+                  "StudentDetailPage",
+                ),
+              },
             ],
           },
           {
             path: "parents",
-            Component: createRoleRoute(["Admin", "Owner", "Principal"]),
+            Component: createRoleRoute(ROUTE_ACCESS["/parents"]),
             children: [{ index: true, ...comingSoonRoute("Parents") }],
           },
           {
             path: "teachers",
-            Component: createRoleRoute(["Admin", "Owner", "Principal"]),
+            Component: createRoleRoute(ROUTE_ACCESS["/teachers"]),
             children: [
-              { index: true, Component: TeachersPage },
-              { path: ":id", Component: TeacherDetailPage },
+              {
+                index: true,
+                lazy: lazyPage(
+                  () => import("@/features/teachers/pages/teachers.page"),
+                  "TeachersPage",
+                ),
+              },
+              {
+                path: ":id",
+                lazy: lazyPage(
+                  () =>
+                    import("@/features/teachers/pages/teacher-detail.page"),
+                  "TeacherDetailPage",
+                ),
+              },
             ],
           },
           {
             path: "principals",
-            Component: createRoleRoute(["Admin", "Owner"]),
+            Component: createRoleRoute(ROUTE_ACCESS["/principals"]),
             children: [
-              { index: true, Component: PrincipalsPage },
-              { path: ":id", Component: PrincipalDetailPage },
+              {
+                index: true,
+                lazy: lazyPage(
+                  () => import("@/features/principals/pages/principals.page"),
+                  "PrincipalsPage",
+                ),
+              },
+              {
+                path: ":id",
+                lazy: lazyPage(
+                  () =>
+                    import(
+                      "@/features/principals/pages/principal-detail.page"
+                    ),
+                  "PrincipalDetailPage",
+                ),
+              },
             ],
           },
           {
             path: "materials",
-            Component: createRoleRoute([
-              "Admin",
-              "Owner",
-              "Principal",
-              "Teacher",
-              "Student",
-            ]),
-            children: [{ index: true, Component: MaterialsPage }],
+            Component: createRoleRoute(ROUTE_ACCESS["/materials"]),
+            children: [
+              {
+                index: true,
+                lazy: lazyPage(
+                  () => import("@/features/materials/pages/materials.page"),
+                  "MaterialsPage",
+                ),
+              },
+            ],
           },
           {
             path: "schedules",
-            Component: createRoleRoute([
-              "Admin",
-              "Owner",
-              "Principal",
-              "Teacher",
-              "Student",
-            ]),
-            children: [{ index: true, Component: SchedulesPage }],
+            Component: createRoleRoute(ROUTE_ACCESS["/schedules"]),
+            children: [
+              {
+                index: true,
+                lazy: lazyPage(
+                  () => import("@/features/schedules/pages/schedules.page"),
+                  "SchedulesPage",
+                ),
+              },
+            ],
           },
           {
             path: "academics",
-            Component: createRoleRoute([
-              "Admin",
-              "Owner",
-              "Principal",
-              "Teacher",
-            ]),
-            children: [{ index: true, Component: AcademicsPage }],
+            Component: createRoleRoute(ROUTE_ACCESS["/academics"]),
+            children: [
+              {
+                index: true,
+                lazy: lazyPage(
+                  () => import("@/features/academics/pages/academics.page"),
+                  "AcademicsPage",
+                ),
+              },
+            ],
           },
           {
             path: "attendance",
-            Component: createRoleRoute([
-              "Admin",
-              "Owner",
-              "Principal",
-              "Teacher",
-            ]),
-            children: [{ index: true, Component: AttendancePage }],
+            Component: createRoleRoute(ROUTE_ACCESS["/attendance"]),
+            children: [
+              {
+                index: true,
+                lazy: lazyPage(
+                  () => import("@/features/attendance/pages/attendance.page"),
+                  "AttendancePage",
+                ),
+              },
+            ],
           },
           {
             path: "classes",
-            Component: createRoleRoute([
-              "Admin",
-              "Owner",
-              "Principal",
-              "Teacher",
-            ]),
+            Component: createRoleRoute(ROUTE_ACCESS["/classes"]),
             children: [
-              { index: true, Component: ClassesPage },
-              { path: "grades", Component: GradesPage },
-              { path: ":id", Component: ClassDetailPage },
+              {
+                index: true,
+                lazy: lazyPage(
+                  () => import("@/features/classes/pages/classes.page"),
+                  "ClassesPage",
+                ),
+              },
+              {
+                path: "grades",
+                lazy: lazyPage(
+                  () => import("@/features/classes/pages/grades.page"),
+                  "GradesPage",
+                ),
+              },
+              {
+                path: ":id",
+                lazy: lazyPage(
+                  () => import("@/features/classes/pages/class-detail.page"),
+                  "ClassDetailPage",
+                ),
+              },
             ],
           },
           {
             path: "messages",
-            Component: createRoleRoute([
-              "Admin",
-              "Owner",
-              "Principal",
-              "Teacher",
-              "Student",
-            ]),
-            children: [{ index: true, Component: MessagesPage }],
+            Component: createRoleRoute(ROUTE_ACCESS["/messages"]),
+            children: [
+              {
+                index: true,
+                lazy: lazyPage(
+                  () => import("@/features/messages/pages/messages.page"),
+                  "MessagesPage",
+                ),
+              },
+            ],
           },
           {
             path: "schools",
-            Component: createRoleRoute(["Admin", "Owner"]),
+            Component: createRoleRoute(ROUTE_ACCESS["/schools"]),
             children: [
-              { index: true, Component: SchoolsPage },
-              { path: ":id", Component: SchoolDetailPage },
+              {
+                index: true,
+                lazy: lazyPage(
+                  () => import("@/features/schools/pages/schools.page"),
+                  "SchoolsPage",
+                ),
+              },
+              {
+                path: ":id",
+                lazy: lazyPage(
+                  () =>
+                    import("@/features/schools/pages/school-detail.page"),
+                  "SchoolDetailPage",
+                ),
+              },
             ],
           },
           {
             path: "subscriptions",
-            Component: createRoleRoute(["Admin", "Owner"]),
+            Component: createRoleRoute(ROUTE_ACCESS["/subscriptions"]),
             children: [
-              { index: true, Component: SubscriptionsPage },
-              { path: ":id", Component: SubscriptionDetailPage },
+              {
+                index: true,
+                lazy: lazyPage(
+                  () =>
+                    import(
+                      "@/features/subscriptions/pages/subscriptions.page"
+                    ),
+                  "SubscriptionsPage",
+                ),
+              },
+              {
+                path: ":id",
+                lazy: lazyPage(
+                  () =>
+                    import(
+                      "@/features/subscriptions/pages/subscription-detail.page"
+                    ),
+                  "SubscriptionDetailPage",
+                ),
+              },
             ],
           },
         ],

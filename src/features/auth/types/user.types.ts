@@ -2,6 +2,12 @@ export type UserRole =
   | "Admin"
   | "Owner"
   | "Principal"
+  | "VicePrincipal"
+  | "Registrar"
+  | "HR"
+  | "Counselor"
+  | "Staff"
+  | "Parent"
   | "Teacher"
   | "Student";
 

@@ -6,6 +6,7 @@ import { store } from "@/lib/store";
 import { router } from "@/app/routes/router";
 import { Suspense, useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
+import { ErrorBoundary } from "@/components/layouts/ErrorBoundary";
 
 const queryClient = new QueryClient();
 
@@ -18,19 +19,21 @@ function App() {
   }, []);
 
   return (
-    <Provider store={store}>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
+    <ErrorBoundary>
+      <Provider store={store}>
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
 
-        {showDevTools && (
-          <Suspense fallback={null}>
-            <ReactQueryDevtools initialIsOpen={false} />
-          </Suspense>
-        )}
+          {showDevTools && (
+            <Suspense fallback={null}>
+              <ReactQueryDevtools initialIsOpen={false} />
+            </Suspense>
+          )}
 
-        <Toaster />
-      </QueryClientProvider>
-    </Provider>
+          <Toaster />
+        </QueryClientProvider>
+      </Provider>
+    </ErrorBoundary>
   );
 }
 

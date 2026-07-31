@@ -1,70 +1,58 @@
 import type { DashboardAnalytics } from "../types/dashboard.types";
 
 export const MOCK_DASHBOARD_ANALYTICS: DashboardAnalytics = {
-  summaryStats: [
+  totalSchools: 12,
+  totalSubscriptionPlans: 3,
+  totalActiveSubscriptions: 9,
+  totalRevenue: 254000,
+  subscriptionsByPlan: [
     {
-      id: "students",
-      label: "Total Students",
-      value: 1981,
-      growthPercent: 18.2,
-      growthLabel: "than last academic year",
+      subscriptionId: "plan-basic",
+      name: "Basic",
+      price: 1000,
+      tenantCount: 5,
+      activeCount: 3,
+      totalRevenue: 40000,
     },
     {
-      id: "parents",
-      label: "Total Parents",
-      value: 1981,
-      growthPercent: 18.2,
-      growthLabel: "than last academic year",
+      subscriptionId: "plan-premium",
+      name: "Premium",
+      price: 2500,
+      tenantCount: 5,
+      activeCount: 4,
+      totalRevenue: 140000,
     },
     {
-      id: "teachers",
-      label: "Total Teachers",
-      value: 52,
-      growthPercent: 18.2,
-      growthLabel: "than last academic year",
-    },
-    {
-      id: "branches",
-      label: "Total Branches",
-      value: 4,
-      growthPercent: 18.2,
-      growthLabel: "than last academic year",
-    },
-  ],
-  branchDistribution: [
-    {
-      branch: "College",
-      total: 952,
-      percentage: 48.06,
-      color: "#22c55e",
-    },
-    {
-      branch: "Bole",
-      total: 467,
-      percentage: 23.57,
-      color: "#eab308",
-    },
-    {
-      branch: "Awra Godana",
-      total: 337,
-      percentage: 17.01,
-      color: "#a855f7",
-    },
-    {
-      branch: "Meto",
-      total: 225,
-      percentage: 11.36,
-      color: "#ef4444",
+      subscriptionId: "plan-enterprise",
+      name: "Enterprise",
+      price: 5000,
+      tenantCount: 2,
+      activeCount: 2,
+      totalRevenue: 74000,
     },
   ],
-  languageDistribution: [
-    { label: "Amharic", value: 62, color: "#22d3ee" },
-    { label: "Oromo", value: 23, color: "#34d399" },
-    { label: "English", value: 15, color: "#818cf8" },
-  ],
-  sexDistribution: [
-    { label: "Male", value: 54, color: "#22c55e" },
-    { label: "Female", value: 46, color: "#06b6d4" },
+  recentSubscriptions: [
+    {
+      schoolName: "College School",
+      planName: "Premium",
+      startDate: "2026-07-01T00:00:00.000Z",
+      endDate: "2027-07-01T00:00:00.000Z",
+      paidAmount: 30000,
+    },
+    {
+      schoolName: "Bole Academy",
+      planName: "Basic",
+      startDate: "2026-06-15T00:00:00.000Z",
+      endDate: "2027-06-15T00:00:00.000Z",
+      paidAmount: 12000,
+    },
+    {
+      schoolName: "Awra Godana School",
+      planName: "Enterprise",
+      startDate: "2026-05-20T00:00:00.000Z",
+      endDate: "2027-05-20T00:00:00.000Z",
+      paidAmount: 60000,
+    },
   ],
 };
 

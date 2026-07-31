@@ -2,28 +2,32 @@ export type SummaryStat = {
   id: string;
   label: string;
   value: number;
-  growthPercent: number;
-  growthLabel: string;
+  growthPercent?: number;
+  growthLabel?: string;
 };
 
-export type BranchDistributionItem = {
-  branch: string;
-  total: number;
-  percentage: number;
-  color: string;
+export type SubscriptionPlanStat = {
+  subscriptionId: string;
+  name: string;
+  price: number;
+  tenantCount: number;
+  activeCount: number;
+  totalRevenue: number;
 };
 
-export type DemographicSlice = {
-  label: string;
-  value: number;
-  color: string;
+export type RecentSubscription = {
+  schoolName: string;
+  planName: string;
+  startDate: string;
+  endDate: string;
+  paidAmount: number;
 };
 
 export type DashboardAnalytics = {
-  summaryStats: SummaryStat[];
-  branchDistribution: BranchDistributionItem[];
-  languageDistribution: DemographicSlice[];
-  sexDistribution: DemographicSlice[];
+  totalSchools: number;
+  totalSubscriptionPlans: number;
+  totalActiveSubscriptions: number;
+  totalRevenue: number;
+  subscriptionsByPlan: SubscriptionPlanStat[];
+  recentSubscriptions: RecentSubscription[];
 };
-
-export type BranchDistributionFilter = "Students" | "Teachers" | "Parents";

@@ -8,7 +8,7 @@ export const dashboardKeys = {
 };
 
 export function useDashboardAnalytics(options?: { enabled?: boolean }) {
-  return useFetchQuery<DashboardAnalytics>(
+  return useFetchQuery<{ data: DashboardAnalytics }>(
     API.ANALYTICS_DASHBOARD,
     dashboardKeys.analytics(),
     undefined,

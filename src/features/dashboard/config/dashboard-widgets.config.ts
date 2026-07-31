@@ -3,8 +3,8 @@ import type { UserRole } from "@/features/auth/types/user.types";
 export type DashboardWidgetId =
   | "welcome"
   | "summary-stats"
-  | "branch-distribution"
-  | "demographics";
+  | "subscription-plans"
+  | "recent-subscriptions";
 
 export type DashboardWidgetConfig = {
   id: DashboardWidgetId;
@@ -18,14 +18,14 @@ export const DASHBOARD_WIDGETS: DashboardWidgetConfig[] = [
   },
   {
     id: "summary-stats",
-    roles: ["Admin", "Owner", "Principal", "Teacher"],
+    roles: ["Admin"],
   },
   {
-    id: "branch-distribution",
-    roles: ["Admin", "Owner", "Principal"],
+    id: "subscription-plans",
+    roles: ["Admin"],
   },
   {
-    id: "demographics",
-    roles: ["Admin", "Owner", "Principal"],
+    id: "recent-subscriptions",
+    roles: ["Admin"],
   },
 ];

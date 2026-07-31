@@ -4,9 +4,10 @@ import { filterByRole } from "@/utils/rbac.helpers";
 import { useDashboardAnalytics } from "../api/dashboard.api";
 import { DASHBOARD_WIDGETS } from "../config/dashboard-widgets.config";
 import { SummaryStatsRow } from "../components/summary-stats-row.component";
-import { BranchDistributionChart } from "../components/branch-distribution-chart.component";
-import { DemographicsDistributionChart } from "../components/demographics-distribution-chart.component";
+import { SubscriptionPlansCard } from "../components/subscription-plans-card.component";
+import { RecentSubscriptionsCard } from "../components/recent-subscriptions-card.component";
 import { DashboardWelcome } from "../components/dashboard-welcome.component";
+import type { SummaryStat } from "../types/dashboard.types";
 
 export function DashboardPage() {
   const user = useAppSelector((state) => state.auth.user);
@@ -35,9 +36,33 @@ export function DashboardPage() {
   }
 
   const showSummaryStats = visibleWidgets.some((w) => w.id === "summary-stats");
-  const showCharts = visibleWidgets.some(
-    (w) => w.id === "branch-distribution" || w.id === "demographics",
-  );
+  const showPlans = visibleWidgets.some((w) => w.id === "subscription-plans");
+  const showRecent = visibleWidgets.some((w) => w.id === "recent-subscriptions");
+
+  const summaryStats: SummaryStat[] = data
+    ? [
+        {
+          id: "schools",
+          label: "Total Schools",
+          value: data.data.totalSchools,
+        },
+        {
+          id: "subscription-plans",
+          label: "Subscription Plans",
+          value: data.data.totalSubscriptionPlans,
+        },
+        {
+          id: "active-subscriptions",
+          label: "Active Subscriptions",
+          value: data.data.totalActiveSubscriptions,
+        },
+        {
+          id: "revenue",
+          label: "Total Revenue",
+          value: data.data.totalRevenue,
+        },
+      ]
+    : [];
 
   return (
     <div className="space-y-6">
@@ -46,21 +71,15 @@ export function DashboardPage() {
       )}
 
       {showSummaryStats && data && (
-        <SummaryStatsRow stats={data.summaryStats} userRole={user?.type} />
+        <SummaryStatsRow stats={summaryStats} userRole={user?.type} />
       )}
 
-      {showCharts && data && (
-        <div className="grid gap-6 xl:grid-cols-2">
-          {visibleWidgets.some((w) => w.id === "branch-distribution") && (
-            <BranchDistributionChart data={data.branchDistribution} />
-          )}
-          {visibleWidgets.some((w) => w.id === "demographics") && (
-            <DemographicsDistributionChart
-              languageData={data.languageDistribution}
-              sexData={data.sexDistribution}
-            />
-          )}
-        </div>
+      {showPlans && data && (
+        <SubscriptionPlansCard data={data.data.subscriptionsByPlan} />
+      )}
+
+      {showRecent && data && (
+        <RecentSubscriptionsCard data={data.data.recentSubscriptions} />
       )}
     </div>
   );
