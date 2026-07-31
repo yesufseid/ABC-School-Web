@@ -17,6 +17,7 @@ import { AttendancePage } from "@/features/attendance/pages/attendance.page.tsx"
 import { AcademicsPage } from "@/features/academics/pages/academics.page.tsx";
 import { SchedulesPage } from "@/features/schedules/pages/schedules.page.tsx";
 import { MaterialsPage } from "@/features/materials/pages/materials.page.tsx";
+import { MessagesPage } from "@/features/messages/pages/messages.page.tsx";
 import { SchoolsPage } from "@/features/schools/pages/schools.page.tsx";
 import { SchoolDetailPage } from "@/features/schools/pages/school-detail.page.tsx";
 import { SubscriptionsPage } from "@/features/subscriptions/pages/subscriptions.page.tsx";
@@ -149,7 +150,14 @@ export const router = createBrowserRouter([
           },
           {
             path: "messages",
-            ...comingSoonRoute("Messages"),
+            Component: createRoleRoute([
+              "Admin",
+              "Owner",
+              "Principal",
+              "Teacher",
+              "Student",
+            ]),
+            children: [{ index: true, Component: MessagesPage }],
           },
           {
             path: "schools",
