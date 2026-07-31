@@ -13,6 +13,7 @@ import { TeachersPage } from "@/features/teachers/pages/teachers.page.tsx";
 import { TeacherDetailPage } from "@/features/teachers/pages/teacher-detail.page.tsx";
 import { PrincipalsPage } from "@/features/principals/pages/principals.page.tsx";
 import { PrincipalDetailPage } from "@/features/principals/pages/principal-detail.page.tsx";
+import { AttendancePage } from "@/features/attendance/pages/attendance.page.tsx";
 import { SchoolsPage } from "@/features/schools/pages/schools.page.tsx";
 import { SchoolDetailPage } from "@/features/schools/pages/school-detail.page.tsx";
 import { SubscriptionsPage } from "@/features/subscriptions/pages/subscriptions.page.tsx";
@@ -107,7 +108,7 @@ export const router = createBrowserRouter([
               "Principal",
               "Teacher",
             ]),
-            children: [{ index: true, ...comingSoonRoute("Attendance") }],
+            children: [{ index: true, Component: AttendancePage }],
           },
           {
             path: "classes",

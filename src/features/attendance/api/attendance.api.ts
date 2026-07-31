@@ -2,71 +2,76 @@ import { useFetchQuery, useApiMutation } from "@/lib/api/query";
 import { API } from "@/lib/api/api.constants";
 import type { components } from "@/lib/api/generated/api-types";
 import type {
-  AttendanceRecord,
-  StaffAttendanceRecord,
+  SectionAttendanceSheet,
+  SectionAttendanceEntry,
   AttendanceStatistics,
+  StaffAttendanceRecord,
   PayrollSummary,
 } from "../types/attendance.types";
 
 export const attendanceKeys = {
   all: ["attendance"] as const,
-  section: (sectionId: string, date: string) =>
-    [...attendanceKeys.all, "section", sectionId, date] as const,
-  history: (studentId: string) =>
-    [...attendanceKeys.all, "history", studentId] as const,
+  sheets: () => [...attendanceKeys.all, "sheet"] as const,
+  sheet: (sectionId: string, date: string) =>
+    [...attendanceKeys.sheets(), sectionId, date] as const,
   statistics: () => [...attendanceKeys.all, "statistics"] as const,
+  staff: () => [...attendanceKeys.all, "staff"] as const,
+  staffRecords: () => [...attendanceKeys.staff(), "list"] as const,
+  staffRecord: (id: string) => [...attendanceKeys.staff(), id] as const,
+  payroll: (branchId: string, periodStart: string, periodEnd: string) =>
+    [...attendanceKeys.staff(), "payroll", branchId, periodStart, periodEnd] as const,
 };
 
-export const staffAttendanceKeys = {
-  all: ["staff-attendance"] as const,
-  member: (id: string) => [...staffAttendanceKeys.all, id] as const,
-  payroll: (branchId: string) =>
-    [...staffAttendanceKeys.all, "payroll", branchId] as const,
-};
+export function useFetchSectionAttendanceSheet(
+  sectionId: string,
+  date: string,
+) {
+  return useFetchQuery<{ data: SectionAttendanceSheet }>(
+    API.ATTENDANCE_STUDENTS_SECTION(sectionId, date),
+    attendanceKeys.sheet(sectionId, date),
+    undefined,
+    { enabled: !!sectionId && !!date },
+  );
+}
+
+export function useFetchAttendanceStatistics(params: {
+  branchId?: string;
+  gradeId?: string;
+  sectionId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+}) {
+  const enabled = !!params.branchId;
+  return useFetchQuery<{ data: AttendanceStatistics }>(
+    API.ATTENDANCE_STUDENTS_STATISTICS,
+    attendanceKeys.statistics(),
+    params,
+    { enabled },
+  );
+}
+
+export function useFetchStudentAttendanceHistory(
+  studentId: string,
+  year: string,
+) {
+  return useFetchQuery<{ data: SectionAttendanceEntry[] }>(
+    API.ATTENDANCE_STUDENTS_HISTORY(studentId),
+    [...attendanceKeys.all, "history", studentId, year],
+    { year },
+    { enabled: !!studentId && !!year },
+  );
+}
 
 export function useTakeAttendance() {
   return useApiMutation<
     { message: string },
     components["schemas"]["TakeAttendanceDto"]
   >(API.ATTENDANCE_STUDENTS, "post", {
-    successMessage: "Attendance taken!",
-    invalidateQueries: [{ key: attendanceKeys.all }],
-    mutationOptions: {},
-  });
-}
-
-export function useFetchSectionAttendance(sectionId: string, date: string) {
-  return useFetchQuery<{ data: AttendanceRecord[] }>(
-    API.ATTENDANCE_STUDENTS_SECTION(sectionId, date),
-    attendanceKeys.section(sectionId, date),
-    undefined,
-    { enabled: !!sectionId && !!date },
-  );
-}
-
-export function useFetchStudentHistory(studentId: string) {
-  return useFetchQuery<{ data: AttendanceRecord[] }>(
-    API.ATTENDANCE_STUDENTS_HISTORY(studentId),
-    attendanceKeys.history(studentId),
-    undefined,
-    { enabled: !!studentId },
-  );
-}
-
-export function useFetchAttendanceStatistics() {
-  return useFetchQuery<{ data: AttendanceStatistics }>(
-    API.ATTENDANCE_STUDENTS_STATISTICS,
-    attendanceKeys.statistics(),
-  );
-}
-
-export function useEditAttendance(id: string) {
-  return useApiMutation<
-    { message: string },
-    components["schemas"]["AttendanceEntryDto"]
-  >(API.ATTENDANCE_STUDENT(id), "patch", {
-    successMessage: "Attendance updated!",
-    invalidateQueries: [{ key: attendanceKeys.all }],
+    successMessage: "Attendance saved!",
+    invalidateQueries: [
+      { key: attendanceKeys.sheets() },
+      { key: attendanceKeys.statistics() },
+    ],
     mutationOptions: {},
   });
 }
@@ -77,66 +82,77 @@ export function useCorrectAttendance(id: string) {
     components["schemas"]["CorrectAttendanceDto"]
   >(API.ATTENDANCE_STUDENT_CORRECT(id), "post", {
     successMessage: "Attendance corrected!",
-    invalidateQueries: [{ key: attendanceKeys.all }],
+    invalidateQueries: [
+      { key: attendanceKeys.sheets() },
+      { key: attendanceKeys.statistics() },
+    ],
     mutationOptions: {},
   });
 }
 
-export function useCheckIn() {
+export function useDirectEditAttendance(id: string) {
   return useApiMutation<
     { message: string },
-    components["schemas"]["CheckInDto"]
-  >(API.ATTENDANCE_STAFF_CHECK_IN, "post", {
-    successMessage: "Checked in!",
-    invalidateQueries: [{ key: staffAttendanceKeys.all }],
+    components["schemas"]["AttendanceEntryDto"]
+  >(API.ATTENDANCE_STUDENT(id), "patch", {
+    successMessage: "Attendance updated!",
+    invalidateQueries: [
+      { key: attendanceKeys.sheets() },
+      { key: attendanceKeys.statistics() },
+    ],
     mutationOptions: {},
   });
 }
 
-export function useCheckOut() {
-  return useApiMutation<
-    { message: string },
-    components["schemas"]["CheckOutDto"]
-  >(API.ATTENDANCE_STAFF_CHECK_OUT, "post", {
-    successMessage: "Checked out!",
-    invalidateQueries: [{ key: staffAttendanceKeys.all }],
-    mutationOptions: {},
-  });
-}
-
-export function useFetchStaffAttendance() {
+export function useFetchStaffAttendance(params: {
+  branchId?: string;
+  profileId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+}) {
+  const enabled = !!params.branchId;
   return useFetchQuery<{ data: StaffAttendanceRecord[] }>(
     API.ATTENDANCE_STAFF,
-    staffAttendanceKeys.all,
+    attendanceKeys.staffRecords(),
+    params,
+    { enabled },
   );
 }
 
-export function useFetchStaffMemberAttendance(id: string) {
-  return useFetchQuery<{ data: StaffAttendanceRecord }>(
-    API.ATTENDANCE_STAFF_MEMBER(id),
-    staffAttendanceKeys.member(id),
-    undefined,
-    { enabled: !!id },
-  );
-}
-
-export function useCorrectStaffAttendance(id: string) {
-  return useApiMutation<{ message: string }, void>(
-    API.ATTENDANCE_STAFF_CORRECT(id),
+export function useStaffCheckIn() {
+  return useApiMutation<{ message: string }, components["schemas"]["CheckInDto"]>(
+    API.ATTENDANCE_STAFF_CHECK_IN,
     "post",
     {
-      successMessage: "Staff attendance corrected!",
-      invalidateQueries: [{ key: staffAttendanceKeys.all }],
+      successMessage: "Checked in!",
+      invalidateQueries: [{ key: attendanceKeys.staffRecords() }],
       mutationOptions: {},
     },
   );
 }
 
-export function useFetchPayrollSummary(branchId: string) {
-  return useFetchQuery<{ data: PayrollSummary[] }>(
+export function useStaffCheckOut() {
+  return useApiMutation<{ message: string }, components["schemas"]["CheckOutDto"]>(
+    API.ATTENDANCE_STAFF_CHECK_OUT,
+    "post",
+    {
+      successMessage: "Checked out!",
+      invalidateQueries: [{ key: attendanceKeys.staffRecords() }],
+      mutationOptions: {},
+    },
+  );
+}
+
+export function useFetchPayrollSummary(
+  branchId: string,
+  periodStart: string,
+  periodEnd: string,
+) {
+  const enabled = !!branchId && !!periodStart && !!periodEnd;
+  return useFetchQuery<{ data: PayrollSummary }>(
     API.ATTENDANCE_STAFF_PAYROLL(branchId),
-    staffAttendanceKeys.payroll(branchId),
-    undefined,
-    { enabled: !!branchId },
+    attendanceKeys.payroll(branchId, periodStart, periodEnd),
+    { periodStart, periodEnd },
+    { enabled },
   );
 }
