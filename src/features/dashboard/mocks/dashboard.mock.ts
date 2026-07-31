@@ -1,11 +1,13 @@
 import type { DashboardAnalytics } from "../types/dashboard.types";
 
 export const MOCK_DASHBOARD_ANALYTICS: DashboardAnalytics = {
-  totalSchools: 12,
-  totalSubscriptionPlans: 3,
-  totalActiveSubscriptions: 9,
-  totalRevenue: 254000,
-  subscriptionsByPlan: [
+  summary: [
+    { id: "schools", label: "Total Schools", value: 12 },
+    { id: "subscription-plans", label: "Subscription Plans", value: 3 },
+    { id: "active-subscriptions", label: "Active Subscriptions", value: 9 },
+    { id: "revenue", label: "Total Revenue", value: 254000 },
+  ],
+  plans: [
     {
       subscriptionId: "plan-basic",
       name: "Basic",

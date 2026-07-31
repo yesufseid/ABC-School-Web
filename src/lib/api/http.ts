@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { AxiosError } from "axios";
+import { toast } from "sonner";
 import { store } from "@/lib/store";
 import { logout } from "@/lib/store/slices/auth.slice";
 import { clearAuthState } from "@/lib/store/persist";
@@ -47,8 +48,8 @@ api.interceptors.response.use(
     }
 
     if (status === 403) {
-      // Todo: consider a forbidden page
-      logoutAndRedirect();
+      const message = (error.response?.data as { message?: string })?.message;
+      toast.error(message || "You don't have permission to perform this action");
     }
 
     if (status) return Promise.reject(error);

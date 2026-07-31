@@ -23,11 +23,20 @@ export type RecentSubscription = {
   paidAmount: number;
 };
 
+export type ListColumn = {
+  key: string;
+  label: string;
+};
+
+export type ListWidget = {
+  title: string;
+  columns: ListColumn[];
+  rows: Record<string, string | number>[];
+};
+
 export type DashboardAnalytics = {
-  totalSchools: number;
-  totalSubscriptionPlans: number;
-  totalActiveSubscriptions: number;
-  totalRevenue: number;
-  subscriptionsByPlan: SubscriptionPlanStat[];
-  recentSubscriptions: RecentSubscription[];
+  summary: SummaryStat[];
+  plans?: SubscriptionPlanStat[];
+  recentSubscriptions?: RecentSubscription[];
+  list?: ListWidget;
 };
