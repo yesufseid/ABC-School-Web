@@ -1,17 +1,21 @@
-export type Teacher = {
-  id: string;
-  name: string;
-  phoneNumber: string;
-  branchId: string;
+export type TeacherGradeLink = {
+  gradeId: string;
   subjectIds: string[];
-  createdAt: string;
-  updatedAt: string;
 };
 
-export type TeacherGrade = {
+export type Teacher = {
   id: string;
-  teacherId: string;
-  gradeId: string;
-  subjectId: string;
+  branchId: string;
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  phone: string;
+  email?: string;
+  address: string;
+  sex: "Male" | "Female";
+  startingDate: string;
+  weeklyPeriods: number;
+  grades: TeacherGradeLink[];
   createdAt: string;
+  updatedAt: string;
 };
