@@ -80,10 +80,12 @@ export function useDeleteStudent() {
   );
 }
 
-export function useSearchStudents() {
+export function useSearchStudents(q: string) {
   return useFetchQuery<{ data: Student[] }>(
     API.REGISTRATION_STUDENT_SEARCH,
-    studentKeys.search(""),
+    studentKeys.search(q),
+    q ? { q } : undefined,
+    { enabled: !!q },
   );
 }
 
@@ -110,17 +112,25 @@ export function useReAdmitStudent(id: string) {
   });
 }
 
-export function useSearchParents() {
+export function useSearchParents(params?: { phone?: string; name?: string }) {
+  const hasQuery = !!(params?.phone || params?.name);
   return useFetchQuery<{ data: Parent[] }>(
     API.REGISTRATION_PARENT_SEARCH,
-    parentKeys.search(""),
+    parentKeys.search(JSON.stringify(params ?? {})),
+    params,
+    { enabled: hasQuery },
   );
 }
 
-export function useFetchSections() {
+export function useFetchSections(params?: {
+  gradeId?: string;
+  branchId?: string;
+  year?: string;
+}) {
   return useFetchQuery<{ data: Section[] }>(
     API.REGISTRATION_SECTIONS,
     sectionKeys.lists(),
+    params,
   );
 }
 

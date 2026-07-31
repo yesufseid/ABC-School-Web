@@ -4,6 +4,8 @@ import MainLayout from "@/components/layouts/MainLayout.tsx";
 import { createRoleRoute } from "@/components/layouts/RoleRoute.tsx";
 import { LoginPage } from "@/features/auth/pages/login.page.tsx";
 import { DashboardPage } from "@/features/dashboard/pages/dashboard.page.tsx";
+import { StudentsPage } from "@/features/registration/pages/students.page.tsx";
+import { StudentDetailPage } from "@/features/registration/pages/student-detail.page.tsx";
 import { SchoolsPage } from "@/features/schools/pages/schools.page.tsx";
 import { SchoolDetailPage } from "@/features/schools/pages/school-detail.page.tsx";
 import { SubscriptionsPage } from "@/features/subscriptions/pages/subscriptions.page.tsx";
@@ -52,7 +54,10 @@ export const router = createBrowserRouter([
               "Principal",
               "Teacher",
             ]),
-            children: [{ index: true, ...comingSoonRoute("Students") }],
+            children: [
+              { index: true, Component: StudentsPage },
+              { path: ":id", Component: StudentDetailPage },
+            ],
           },
           {
             path: "parents",
