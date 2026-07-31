@@ -11,6 +11,8 @@ import { ClassDetailPage } from "@/features/classes/pages/class-detail.page.tsx"
 import { GradesPage } from "@/features/classes/pages/grades.page.tsx";
 import { TeachersPage } from "@/features/teachers/pages/teachers.page.tsx";
 import { TeacherDetailPage } from "@/features/teachers/pages/teacher-detail.page.tsx";
+import { PrincipalsPage } from "@/features/principals/pages/principals.page.tsx";
+import { PrincipalDetailPage } from "@/features/principals/pages/principal-detail.page.tsx";
 import { SchoolsPage } from "@/features/schools/pages/schools.page.tsx";
 import { SchoolDetailPage } from "@/features/schools/pages/school-detail.page.tsx";
 import { SubscriptionsPage } from "@/features/subscriptions/pages/subscriptions.page.tsx";
@@ -80,7 +82,10 @@ export const router = createBrowserRouter([
           {
             path: "principals",
             Component: createRoleRoute(["Admin", "Owner"]),
-            children: [{ index: true, ...comingSoonRoute("Principals") }],
+            children: [
+              { index: true, Component: PrincipalsPage },
+              { path: ":id", Component: PrincipalDetailPage },
+            ],
           },
           {
             path: "materials",
