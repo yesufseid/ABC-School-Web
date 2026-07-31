@@ -6,6 +6,9 @@ import { LoginPage } from "@/features/auth/pages/login.page.tsx";
 import { DashboardPage } from "@/features/dashboard/pages/dashboard.page.tsx";
 import { StudentsPage } from "@/features/registration/pages/students.page.tsx";
 import { StudentDetailPage } from "@/features/registration/pages/student-detail.page.tsx";
+import { ClassesPage } from "@/features/classes/pages/classes.page.tsx";
+import { ClassDetailPage } from "@/features/classes/pages/class-detail.page.tsx";
+import { GradesPage } from "@/features/classes/pages/grades.page.tsx";
 import { SchoolsPage } from "@/features/schools/pages/schools.page.tsx";
 import { SchoolDetailPage } from "@/features/schools/pages/school-detail.page.tsx";
 import { SubscriptionsPage } from "@/features/subscriptions/pages/subscriptions.page.tsx";
@@ -104,7 +107,11 @@ export const router = createBrowserRouter([
               "Principal",
               "Teacher",
             ]),
-            children: [{ index: true, ...comingSoonRoute("Classes") }],
+            children: [
+              { index: true, Component: ClassesPage },
+              { path: "grades", Component: GradesPage },
+              { path: ":id", Component: ClassDetailPage },
+            ],
           },
           {
             path: "messages",
