@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addMonths, differenceInDays, parseISO } from "date-fns";
 import { LoaderCircleIcon } from "lucide-react";
@@ -70,7 +70,6 @@ export function SubscribeSchoolForm({
   const {
     control,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<SubscribeSchoolFormValues>({
     resolver: zodResolver(subscribeSchoolSchema),
@@ -81,9 +80,9 @@ export function SubscribeSchoolForm({
     },
   });
 
-  const selectedSubscriptionId = watch("subscriptionId");
-  const paidAmount = watch("paidAmount");
-  const startDate = watch("startDate");
+  const selectedSubscriptionId = useWatch({ control, name: "subscriptionId" });
+  const paidAmount = useWatch({ control, name: "paidAmount" });
+  const startDate = useWatch({ control, name: "startDate" });
 
   const selectedSubscription = useMemo(
     () => subscriptions.find((s) => s.id === selectedSubscriptionId),

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusIcon, TrashIcon, LoaderCircleIcon } from "lucide-react";
@@ -47,34 +47,31 @@ function BranchFormContent({
 
   const [details, setDetails] = useState<DetailEntry[]>([]);
 
+  const defaultValues = useMemo<BranchFormValues>(
+    () => ({
+      name: branch?.name ?? "",
+      description: branch?.description ?? "",
+      branchCode: branch?.branchCode ?? "",
+      branchPrefix: branch?.branchPrefix ?? "",
+      details: [],
+    }),
+    [branch],
+  );
+
   const {
     control,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm<BranchFormValues>({
     resolver: zodResolver(branchSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      branchCode: "",
-      branchPrefix: "",
-      details: [],
-    },
+    values: defaultValues,
   });
 
-  useEffect(() => {
-    if (branch) {
-      reset({
-        name: branch.name,
-        description: branch.description,
-        branchCode: branch.branchCode,
-        branchPrefix: branch.branchPrefix,
-        details: [],
-      });
-      setDetails(recordToEntries(branch.details));
-    }
-  }, [branch, reset]);
+  const [lastBranchId, setLastBranchId] = useState(branch?.id);
+  if (branch && branch.id !== lastBranchId) {
+    setLastBranchId(branch.id);
+    setDetails(recordToEntries(branch.details));
+  }
 
   const handleFormSubmit = (values: BranchFormValues) => {
     onSubmit({ ...values, details: entriesToRecord(details) });

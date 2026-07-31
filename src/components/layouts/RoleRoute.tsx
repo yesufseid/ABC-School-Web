@@ -16,9 +16,3 @@ export function RoleRoute({ allowedRoles }: RoleRouteProps) {
 
   return <Outlet />;
 }
-
-export function createRoleRoute(allowedRoles: readonly UserRole[]) {
-  return function RoleGuardRoute() {
-    return <RoleRoute allowedRoles={allowedRoles} />;
-  };
-}

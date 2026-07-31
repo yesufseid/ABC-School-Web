@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
+import type { Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircleIcon, TrashIcon, PlusIcon } from "lucide-react";
 import {
@@ -73,7 +74,7 @@ export function SubscriptionFormInner({
     handleSubmit,
     formState: { errors },
   } = useForm<CreateSubscriptionFormValues>({
-    resolver: zodResolver(createSubscriptionSchema) as any,
+    resolver: zodResolver(createSubscriptionSchema) as Resolver<CreateSubscriptionFormValues>,
     defaultValues: {
       name: subscription?.name ?? "",
       months: subscription?.months ?? 1,

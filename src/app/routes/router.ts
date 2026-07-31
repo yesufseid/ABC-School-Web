@@ -1,7 +1,7 @@
 import { createBrowserRouter, redirect } from "react-router";
 import AuthLayout from "@/components/layouts/AuthLayout.tsx";
 import MainLayout from "@/components/layouts/MainLayout.tsx";
-import { createRoleRoute } from "@/components/layouts/RoleRoute.tsx";
+import { createRoleRoute } from "@/app/routes/create-role-route.tsx";
 import { LoginPage } from "@/features/auth/pages/login.page.tsx";
 import { DashboardPage } from "@/features/dashboard/pages/dashboard.page.tsx";
 import { StudentsPage } from "@/features/registration/pages/students.page.tsx";
