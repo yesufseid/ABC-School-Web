@@ -4,71 +4,44 @@ import type { components } from "@/lib/api/generated/api-types";
 import type {
   AssessmentSlot,
   SlotWindow,
-  Assignment,
   GradingRule,
-  CorrectionRequest,
+  Assignment,
+  Gradebook,
+  Roster,
+  Correction,
+  AuditEntry,
 } from "../types/academics.types";
 
-export const slotKeys = {
-  all: ["slots"] as const,
-  lists: () => [...slotKeys.all, "list"] as const,
-  list: (params: Record<string, unknown>) =>
-    [...slotKeys.lists(), params] as const,
-  details: () => [...slotKeys.all, "detail"] as const,
-  detail: (id: string) => [...slotKeys.details(), id] as const,
-};
-
-export const slotWindowKeys = {
-  all: ["slot-windows"] as const,
-  lists: () => [...slotWindowKeys.all, "list"] as const,
-  list: (params: Record<string, unknown>) =>
-    [...slotWindowKeys.lists(), params] as const,
-  details: () => [...slotWindowKeys.all, "detail"] as const,
-  detail: (id: string) => [...slotWindowKeys.details(), id] as const,
-};
-
-export const assignmentKeys = {
-  all: ["assignments"] as const,
-  lists: () => [...assignmentKeys.all, "list"] as const,
-  list: (params: Record<string, unknown>) =>
-    [...assignmentKeys.lists(), params] as const,
-};
-
-export const gradingRuleKeys = {
-  all: ["grading-rules"] as const,
-  lists: () => [...gradingRuleKeys.all, "list"] as const,
-  list: (params: Record<string, unknown>) =>
-    [...gradingRuleKeys.lists(), params] as const,
-  details: () => [...gradingRuleKeys.all, "detail"] as const,
-  detail: (id: string) => [...gradingRuleKeys.details(), id] as const,
-};
-
-export const resultKeys = {
-  all: ["results"] as const,
-  bySection: (sectionId: string) => [...resultKeys.all, sectionId] as const,
-};
-
-export const rosterKeys = {
-  all: ["rosters"] as const,
-  bySection: (sectionId: string) => [...rosterKeys.all, sectionId] as const,
-};
-
-export const correctionKeys = {
-  all: ["corrections"] as const,
-  lists: () => [...correctionKeys.all, "list"] as const,
+export const academicKeys = {
+  all: ["academics"] as const,
+  slots: () => [...academicKeys.all, "slots"] as const,
+  slot: (id: string) => [...academicKeys.slots(), id] as const,
+  slotWindows: () => [...academicKeys.all, "slot-windows"] as const,
+  slotWindowsByBranch: (branchId: string) =>
+    [...academicKeys.slotWindows(), branchId] as const,
+  assignments: () => [...academicKeys.all, "assignments"] as const,
+  assignmentsBySection: (sectionId: string) =>
+    [...academicKeys.assignments(), sectionId] as const,
+  rules: () => [...academicKeys.all, "grading-rules"] as const,
+  rule: (id: string) => [...academicKeys.rules(), id] as const,
+  gradebook: (sectionId: string, subjectId: string, slotId: string, term: string) =>
+    [...academicKeys.all, "gradebook", sectionId, subjectId, slotId, term] as const,
+  rosters: () => [...academicKeys.all, "rosters"] as const,
+  roster: (sectionId: string) => [...academicKeys.rosters(), sectionId] as const,
+  corrections: (status: string) => [...academicKeys.all, "corrections", status] as const,
+  audit: () => [...academicKeys.all, "audit"] as const,
+  completion: (sectionId: string, term: string) =>
+    [...academicKeys.all, "completion", sectionId, term] as const,
 };
 
 export function useFetchSlots() {
-  return useFetchQuery<{ data: AssessmentSlot[] }>(
-    API.ACADEMIC_SLOTS,
-    slotKeys.lists(),
-  );
+  return useFetchQuery<{ data: AssessmentSlot[] }>(API.ACADEMIC_SLOTS, academicKeys.slots());
 }
 
 export function useFetchSlot(id: string) {
   return useFetchQuery<{ data: AssessmentSlot }>(
     API.ACADEMIC_SLOT(id),
-    slotKeys.detail(id),
+    academicKeys.slot(id),
     undefined,
     { enabled: !!id },
   );
@@ -80,7 +53,7 @@ export function useCreateSlot() {
     components["schemas"]["CreateAssessmentSlotDto"]
   >(API.ACADEMIC_SLOTS, "post", {
     successMessage: "Assessment slot created!",
-    invalidateQueries: [{ key: slotKeys.lists() }],
+    invalidateQueries: [{ key: academicKeys.slots() }],
     mutationOptions: {},
   });
 }
@@ -92,30 +65,26 @@ export function useUpdateSlot(id: string) {
   >(API.ACADEMIC_SLOT(id), "patch", {
     successMessage: "Assessment slot updated!",
     invalidateQueries: [
-      { key: slotKeys.lists() },
-      { key: slotKeys.detail(id) },
+      { key: academicKeys.slots() },
+      { key: academicKeys.slot(id) },
     ],
     mutationOptions: {},
   });
 }
 
 export function useDeleteSlot() {
-  return useApiMutation<{ message: string }, string>(
-    API.ACADEMIC_SLOTS,
-    "delete",
-    {
-      successMessage: "Assessment slot deleted!",
-      invalidateQueries: [{ key: slotKeys.lists() }],
-      mutationOptions: {},
-    },
-  );
+  return useApiMutation<{ message: string }, string>(API.ACADEMIC_SLOTS, "delete", {
+    successMessage: "Assessment slot deleted!",
+    invalidateQueries: [{ key: academicKeys.slots() }],
+    mutationOptions: {},
+  });
 }
 
 export function useFetchSlotWindows(branchId: string) {
   return useFetchQuery<{ data: SlotWindow[] }>(
     API.ACADEMIC_SLOT_WINDOWS,
-    slotWindowKeys.lists(),
-    { branchId },
+    academicKeys.slotWindowsByBranch(branchId),
+    branchId ? { branchId } : undefined,
     { enabled: !!branchId },
   );
 }
@@ -126,7 +95,7 @@ export function useCreateSlotWindow() {
     components["schemas"]["CreateSlotWindowDto"]
   >(API.ACADEMIC_SLOT_WINDOWS, "post", {
     successMessage: "Slot window created!",
-    invalidateQueries: [{ key: slotWindowKeys.lists() }],
+    invalidateQueries: [{ key: academicKeys.slotWindows() }],
     mutationOptions: {},
   });
 }
@@ -137,55 +106,40 @@ export function useUpdateSlotWindow(id: string) {
     components["schemas"]["UpdateSlotWindowDto"]
   >(API.ACADEMIC_SLOT_WINDOW(id), "patch", {
     successMessage: "Slot window updated!",
-    invalidateQueries: [
-      { key: slotWindowKeys.lists() },
-      { key: slotWindowKeys.detail(id) },
-    ],
+    invalidateQueries: [{ key: academicKeys.slotWindows() }],
     mutationOptions: {},
   });
 }
 
-export function useFetchAssignments() {
+export function useFetchAssignments(sectionId: string) {
   return useFetchQuery<{ data: Assignment[] }>(
     API.ACADEMIC_ASSIGNMENTS,
-    assignmentKeys.lists(),
+    academicKeys.assignmentsBySection(sectionId),
+    sectionId ? { sectionId } : undefined,
+    { enabled: !!sectionId },
   );
 }
 
-export function useCreateAssignment() {
-  return useApiMutation<
-    { message: string },
-    components["schemas"]["TeacherGradeLinkDto"]
-  >(API.ACADEMIC_ASSIGNMENTS, "post", {
-    successMessage: "Teacher assigned!",
-    invalidateQueries: [{ key: assignmentKeys.lists() }],
-    mutationOptions: {},
-  });
-}
-
-export function useDeleteAssignment() {
-  return useApiMutation<{ message: string }, string>(
-    API.ACADEMIC_ASSIGNMENTS,
+export function useRemoveAssignment(id: string) {
+  return useApiMutation<{ message: string }, void>(
+    API.ACADEMIC_ASSIGNMENT(id),
     "delete",
     {
       successMessage: "Assignment removed!",
-      invalidateQueries: [{ key: assignmentKeys.lists() }],
+      invalidateQueries: [{ key: academicKeys.assignments() }],
       mutationOptions: {},
     },
   );
 }
 
 export function useFetchGradingRules() {
-  return useFetchQuery<{ data: GradingRule[] }>(
-    API.ACADEMIC_GRADING_RULES,
-    gradingRuleKeys.lists(),
-  );
+  return useFetchQuery<{ data: GradingRule[] }>(API.ACADEMIC_GRADING_RULES, academicKeys.rules());
 }
 
 export function useFetchGradingRule(id: string) {
   return useFetchQuery<{ data: GradingRule }>(
     API.ACADEMIC_GRADING_RULE(id),
-    gradingRuleKeys.detail(id),
+    academicKeys.rule(id),
     undefined,
     { enabled: !!id },
   );
@@ -197,7 +151,7 @@ export function useCreateGradingRule() {
     components["schemas"]["CreateGradingRuleDto"]
   >(API.ACADEMIC_GRADING_RULES, "post", {
     successMessage: "Grading rule created!",
-    invalidateQueries: [{ key: gradingRuleKeys.lists() }],
+    invalidateQueries: [{ key: academicKeys.rules() }],
     mutationOptions: {},
   });
 }
@@ -209,8 +163,8 @@ export function useUpdateGradingRule(id: string) {
   >(API.ACADEMIC_GRADING_RULE(id), "patch", {
     successMessage: "Grading rule updated!",
     invalidateQueries: [
-      { key: gradingRuleKeys.lists() },
-      { key: gradingRuleKeys.detail(id) },
+      { key: academicKeys.rules() },
+      { key: academicKeys.rule(id) },
     ],
     mutationOptions: {},
   });
@@ -222,19 +176,39 @@ export function useDeleteGradingRule() {
     "delete",
     {
       successMessage: "Grading rule deleted!",
-      invalidateQueries: [{ key: gradingRuleKeys.lists() }],
+      invalidateQueries: [{ key: academicKeys.rules() }],
       mutationOptions: {},
     },
   );
 }
 
-export function useGradebookEntry() {
+export function useFetchGradebook(params: {
+  sectionId?: string;
+  subjectId?: string;
+  slotId?: string;
+  term?: string;
+}) {
+  const enabled = !!params.sectionId && !!params.subjectId && !!params.slotId && !!params.term;
+  return useFetchQuery<{ data: Gradebook }>(
+    API.ACADEMIC_RESULTS(params.sectionId ?? ""),
+    academicKeys.gradebook(
+      params.sectionId ?? "",
+      params.subjectId ?? "",
+      params.slotId ?? "",
+      params.term ?? "",
+    ),
+    params,
+    { enabled },
+  );
+}
+
+export function useSubmitGradebookEntry() {
   return useApiMutation<
     { message: string },
     components["schemas"]["GradebookEntryBatchDto"]
   >(API.ACADEMIC_RESULTS_ENTRY, "post", {
-    successMessage: "Grades entered!",
-    invalidateQueries: [{ key: resultKeys.all }],
+    successMessage: "Grades saved!",
+    invalidateQueries: [{ key: academicKeys.gradebook("", "", "", "") }],
     mutationOptions: {},
   });
 }
@@ -245,37 +219,33 @@ export function useSubmitResults() {
     components["schemas"]["SubmitResultsDto"]
   >(API.ACADEMIC_RESULTS_SUBMIT, "post", {
     successMessage: "Results submitted!",
-    invalidateQueries: [{ key: resultKeys.all }],
-    mutationOptions: {},
-  });
-}
-
-export function useFetchResults(sectionId: string) {
-  return useFetchQuery<{ data: unknown }>(
-    API.ACADEMIC_RESULTS(sectionId),
-    resultKeys.bySection(sectionId),
-    undefined,
-    { enabled: !!sectionId },
-  );
-}
-
-export function useFallback() {
-  return useApiMutation<
-    { message: string },
-    components["schemas"]["FallbackDto"]
-  >(API.ACADEMIC_RESULTS_FALLBACK, "post", {
-    successMessage: "Score saved!",
-    invalidateQueries: [{ key: resultKeys.all }],
+    invalidateQueries: [{ key: academicKeys.gradebook("", "", "", "") }],
     mutationOptions: {},
   });
 }
 
 export function useFetchRoster(sectionId: string) {
-  return useFetchQuery<{ data: unknown }>(
+  return useFetchQuery<{ data: Roster }>(
     API.ACADEMIC_ROSTER(sectionId),
-    rosterKeys.bySection(sectionId),
+    academicKeys.roster(sectionId),
     undefined,
     { enabled: !!sectionId },
+  );
+}
+
+export function useGenerateRoster(sectionId: string, term: string, year: string) {
+  return useApiMutation<{ message: string }, void>(
+    API.ACADEMIC_ROSTER_GENERATE(sectionId),
+    "post",
+    {
+      successMessage: "Roster generated!",
+      invalidateQueries: [
+        { key: academicKeys.roster(sectionId) },
+        { key: academicKeys.completion(sectionId, term) },
+      ],
+      mutationOptions: {},
+      queryParams: { term, year },
+    },
   );
 }
 
@@ -285,50 +255,42 @@ export function useApproveRoster(id: string) {
     "post",
     {
       successMessage: "Roster approved!",
-      invalidateQueries: [{ key: rosterKeys.all }],
+      invalidateQueries: [{ key: academicKeys.rosters() }],
       mutationOptions: {},
     },
   );
 }
 
 export function useRejectRoster(id: string) {
-  return useApiMutation<
-    { message: string },
-    components["schemas"]["RejectRosterDto"]
-  >(API.ACADEMIC_ROSTER_REJECT(id), "post", {
-    successMessage: "Roster rejected!",
-    invalidateQueries: [{ key: rosterKeys.all }],
-    mutationOptions: {},
-  });
-}
-
-export function usePublishRoster() {
-  return useApiMutation<
-    { message: string },
-    components["schemas"]["PublishRosterDto"]
-  >(API.ACADEMIC_ROSTER_PUBLISH, "post", {
-    successMessage: "Roster published!",
-    invalidateQueries: [{ key: rosterKeys.all }],
-    mutationOptions: {},
-  });
-}
-
-export function useGenerateRoster(sectionId: string) {
-  return useApiMutation<{ message: string }, void>(
-    API.ACADEMIC_ROSTER_GENERATE(sectionId),
+  return useApiMutation<{ message: string }, components["schemas"]["RejectRosterDto"]>(
+    API.ACADEMIC_ROSTER_REJECT(id),
     "post",
     {
-      successMessage: "Roster generated!",
-      invalidateQueries: [{ key: rosterKeys.all }],
+      successMessage: "Roster rejected!",
+      invalidateQueries: [{ key: academicKeys.rosters() }],
       mutationOptions: {},
     },
   );
 }
 
-export function useFetchCorrections() {
-  return useFetchQuery<{ data: CorrectionRequest[] }>(
+export function usePublishRoster() {
+  return useApiMutation<{ message: string }, components["schemas"]["PublishRosterDto"]>(
+    API.ACADEMIC_ROSTER_PUBLISH,
+    "post",
+    {
+      successMessage: "Roster published!",
+      invalidateQueries: [{ key: academicKeys.rosters() }],
+      mutationOptions: {},
+    },
+  );
+}
+
+export function useFetchCorrections(status: string) {
+  return useFetchQuery<{ data: Correction[] }>(
     API.ACADEMIC_CORRECTIONS,
-    correctionKeys.lists(),
+    academicKeys.corrections(status),
+    { status },
+    { enabled: !!status },
   );
 }
 
@@ -338,7 +300,11 @@ export function useRequestCorrection() {
     components["schemas"]["CorrectionRequestDto"]
   >(API.ACADEMIC_CORRECTIONS, "post", {
     successMessage: "Correction requested!",
-    invalidateQueries: [{ key: correctionKeys.lists() }],
+    invalidateQueries: [
+      { key: academicKeys.corrections("PENDING") },
+      { key: academicKeys.corrections("APPROVED") },
+      { key: academicKeys.corrections("REJECTED") },
+    ],
     mutationOptions: {},
   });
 }
@@ -349,35 +315,52 @@ export function useApproveCorrection(id: string) {
     "post",
     {
       successMessage: "Correction approved!",
-      invalidateQueries: [{ key: correctionKeys.lists() }],
+      invalidateQueries: [
+        { key: academicKeys.corrections("PENDING") },
+        { key: academicKeys.corrections("APPROVED") },
+      ],
       mutationOptions: {},
     },
   );
 }
 
 export function useRejectCorrection(id: string) {
-  return useApiMutation<
-    { message: string },
-    components["schemas"]["RejectCorrectionDto"]
-  >(API.ACADEMIC_CORRECTION_REJECT(id), "post", {
-    successMessage: "Correction rejected!",
-    invalidateQueries: [{ key: correctionKeys.lists() }],
-    mutationOptions: {},
-  });
-}
-
-export function useFetchAudit() {
-  return useFetchQuery<{ data: unknown }>(
-    API.ACADEMIC_AUDIT,
-    [...slotKeys.all, "audit"],
+  return useApiMutation<{ message: string }, components["schemas"]["RejectCorrectionDto"]>(
+    API.ACADEMIC_CORRECTION_REJECT(id),
+    "post",
+    {
+      successMessage: "Correction rejected!",
+      invalidateQueries: [
+        { key: academicKeys.corrections("PENDING") },
+        { key: academicKeys.corrections("REJECTED") },
+      ],
+      mutationOptions: {},
+    },
   );
 }
 
-export function useCheckCompletion(sectionId: string) {
-  return useFetchQuery<{ data: unknown }>(
+export function useFetchAcademicAudit(params?: {
+  action?: string;
+  branchId?: string;
+  sectionId?: string;
+  studentId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  limit?: string;
+}) {
+  return useFetchQuery<{ data: AuditEntry[] }>(
+    API.ACADEMIC_AUDIT,
+    academicKeys.audit(),
+    params,
+    { enabled: !!params?.action },
+  );
+}
+
+export function useFetchCompletion(sectionId: string, term: string) {
+  return useFetchQuery<{ data: { complete: boolean; message?: string } }>(
     API.ACADEMIC_COMPLETION(sectionId),
-    [...slotKeys.all, "completion", sectionId],
-    undefined,
-    { enabled: !!sectionId },
+    academicKeys.completion(sectionId, term),
+    { term },
+    { enabled: !!sectionId && !!term },
   );
 }

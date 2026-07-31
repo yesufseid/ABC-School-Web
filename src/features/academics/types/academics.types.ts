@@ -1,10 +1,13 @@
+export type SlotType = "TEST" | "MID_ASSIGNMENT" | "FINAL" | "ASSESSMENT_COMPONENT";
+export type GradeCycle = "KG" | "LOWER_PRIMARY" | "UPPER_PRIMARY" | "SECONDARY";
+
 export type AssessmentSlot = {
   id: string;
   name: string;
-  slotType: "TEST" | "MID_ASSIGNMENT" | "FINAL" | "ASSESSMENT_COMPONENT";
+  slotType: SlotType;
   weight: number;
   maxMark: number;
-  gradeCycle: "KG" | "LOWER_PRIMARY" | "UPPER_PRIMARY" | "SECONDARY";
+  gradeCycle: GradeCycle;
   createdAt: string;
   updatedAt: string;
 };
@@ -14,18 +17,12 @@ export type SlotWindow = {
   slotId: string;
   branchId: string;
   isScheduled: boolean;
-  startDate: string | null;
-  endDate: string | null;
-  assessmentPeriodStart: string | null;
-  assessmentPeriodEnd: string | null;
-};
-
-export type Assignment = {
-  id: string;
-  teacherId: string;
-  subjectId: string;
-  sectionId: string;
-  branchId: string;
+  startDate?: string;
+  endDate?: string;
+  assessmentPeriodStart?: string;
+  assessmentPeriodEnd?: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type GradingRule = {
@@ -35,23 +32,68 @@ export type GradingRule = {
   grade: string;
   points: number;
   isPass: boolean;
-};
-
-export type RosterEntry = {
-  studentId: string;
-  studentName: string;
-  subjectId: string;
-  sectionId: string;
-  score: number | null;
-  grade: string | null;
-};
-
-export type CorrectionRequest = {
-  id: string;
-  studentId: string;
-  subjectId: string;
-  sectionId: string;
-  reason: string;
-  status: "PENDING" | "APPROVED" | "REJECTED";
   createdAt: string;
+  updatedAt: string;
+};
+
+export type Assignment = {
+  id: string;
+  teacherId: string;
+  sectionId: string;
+  subjectId: string;
+  branchId?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type GradebookStudent = {
+  studentId: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  sex?: string;
+  score?: number | null;
+  resultId?: string;
+  status?: string;
+};
+
+export type Gradebook = {
+  sectionId: string;
+  subjectId: string;
+  slotId: string;
+  term: string;
+  entries: GradebookStudent[];
+};
+
+export type Roster = {
+  id: string;
+  sectionId: string;
+  term: string;
+  year: string;
+  status: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "PUBLISHED";
+  note?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Correction = {
+  id: string;
+  resultId: string;
+  reason: string;
+  newScore: number;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  note?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AuditEntry = {
+  id: string;
+  action: string;
+  branchId?: string;
+  sectionId?: string;
+  studentId?: string;
+  user?: string;
+  createdAt: string;
+  details?: Record<string, unknown>;
 };
