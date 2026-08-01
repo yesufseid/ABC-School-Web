@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ClipboardListIcon, LibraryIcon, ShieldCheckIcon, Settings2Icon } from "lucide-react";
+import { ClipboardListIcon, LibraryIcon, ShieldCheckIcon, Settings2Icon, CalendarDaysIcon } from "lucide-react";
 import { PageHeader } from "@/components/custom/page-header";
 import { ContextSelector } from "@/components/custom/context-selector";
 import { cn } from "@/lib/utils";
@@ -9,13 +9,15 @@ import { GradebookComponent } from "../components/gradebook.component";
 import { RostersComponent } from "../components/rosters.component";
 import { CorrectionsComponent } from "../components/corrections.component";
 import { ConfigComponent } from "../components/config.component";
+import { AcademicCalendarComponent } from "../components/academic-calendar.component";
 
-type AcademicsTab = "gradebook" | "rosters" | "corrections" | "config";
+type AcademicsTab = "gradebook" | "rosters" | "corrections" | "config" | "calendar";
 
 const TABS: { id: AcademicsTab; label: string; icon: typeof LibraryIcon }[] = [
   { id: "gradebook", label: "Gradebook", icon: ClipboardListIcon },
   { id: "rosters", label: "Rosters", icon: LibraryIcon },
   { id: "corrections", label: "Corrections", icon: ShieldCheckIcon },
+  { id: "calendar", label: "Calendar", icon: CalendarDaysIcon },
   { id: "config", label: "Settings", icon: Settings2Icon },
 ];
 
@@ -66,6 +68,7 @@ export function AcademicsPage() {
       {tab === "gradebook" && <GradebookComponent />}
       {tab === "rosters" && <RostersComponent />}
       {tab === "corrections" && <CorrectionsComponent />}
+      {tab === "calendar" && <AcademicCalendarComponent />}
       {tab === "config" && <ConfigComponent />}
     </div>
   );

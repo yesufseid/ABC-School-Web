@@ -10,6 +10,15 @@ import type {
   Roster,
   Correction,
   AuditEntry,
+  AcademicYear,
+  AcademicPeriod,
+  CreateAcademicYearPayload,
+  UpdateAcademicYearPayload,
+  CreatePeriodPayload,
+  UpdatePeriodPayload,
+  GradebookEntryBatchPayload,
+  SubmitResultsPayload,
+  PublishRosterPayload,
 } from "../types/academics.types";
 
 export const academicKeys = {
@@ -24,14 +33,19 @@ export const academicKeys = {
     [...academicKeys.assignments(), sectionId] as const,
   rules: () => [...academicKeys.all, "grading-rules"] as const,
   rule: (id: string) => [...academicKeys.rules(), id] as const,
-  gradebook: (sectionId: string, subjectId: string, slotId: string, term: string) =>
-    [...academicKeys.all, "gradebook", sectionId, subjectId, slotId, term] as const,
+  gradebook: (sectionId: string, subjectId: string, slotId: string, periodId: string) =>
+    [...academicKeys.all, "gradebook", sectionId, subjectId, slotId, periodId] as const,
   rosters: () => [...academicKeys.all, "rosters"] as const,
   roster: (sectionId: string) => [...academicKeys.rosters(), sectionId] as const,
   corrections: (status: string) => [...academicKeys.all, "corrections", status] as const,
   audit: () => [...academicKeys.all, "audit"] as const,
-  completion: (sectionId: string, term: string) =>
-    [...academicKeys.all, "completion", sectionId, term] as const,
+  completion: (sectionId: string, periodId: string) =>
+    [...academicKeys.all, "completion", sectionId, periodId] as const,
+  years: () => [...academicKeys.all, "years"] as const,
+  year: (id: string) => [...academicKeys.years(), id] as const,
+  currentYear: () => [...academicKeys.all, "years", "current"] as const,
+  periods: (yearId: string) => [...academicKeys.all, "periods", yearId] as const,
+  period: (id: string) => [...academicKeys.all, "periods", id] as const,
 };
 
 export function useFetchSlots() {
@@ -186,16 +200,20 @@ export function useFetchGradebook(params: {
   sectionId?: string;
   subjectId?: string;
   slotId?: string;
-  term?: string;
+  periodId?: string;
 }) {
-  const enabled = !!params.sectionId && !!params.subjectId && !!params.slotId && !!params.term;
+  const enabled =
+    !!params.sectionId &&
+    !!params.subjectId &&
+    !!params.slotId &&
+    !!params.periodId;
   return useFetchQuery<{ data: Gradebook }>(
     API.ACADEMIC_RESULTS(params.sectionId ?? ""),
     academicKeys.gradebook(
       params.sectionId ?? "",
       params.subjectId ?? "",
       params.slotId ?? "",
-      params.term ?? "",
+      params.periodId ?? "",
     ),
     params,
     { enabled },
@@ -203,25 +221,27 @@ export function useFetchGradebook(params: {
 }
 
 export function useSubmitGradebookEntry() {
-  return useApiMutation<
-    { message: string },
-    components["schemas"]["GradebookEntryBatchDto"]
-  >(API.ACADEMIC_RESULTS_ENTRY, "post", {
-    successMessage: "Grades saved!",
-    invalidateQueries: [{ key: academicKeys.gradebook("", "", "", "") }],
-    mutationOptions: {},
-  });
+  return useApiMutation<{ message: string }, GradebookEntryBatchPayload>(
+    API.ACADEMIC_RESULTS_ENTRY,
+    "post",
+    {
+      successMessage: "Grades saved!",
+      invalidateQueries: [{ key: academicKeys.gradebook("", "", "", "") }],
+      mutationOptions: {},
+    },
+  );
 }
 
 export function useSubmitResults() {
-  return useApiMutation<
-    { message: string },
-    components["schemas"]["SubmitResultsDto"]
-  >(API.ACADEMIC_RESULTS_SUBMIT, "post", {
-    successMessage: "Results submitted!",
-    invalidateQueries: [{ key: academicKeys.gradebook("", "", "", "") }],
-    mutationOptions: {},
-  });
+  return useApiMutation<{ message: string }, SubmitResultsPayload>(
+    API.ACADEMIC_RESULTS_SUBMIT,
+    "post",
+    {
+      successMessage: "Results submitted!",
+      invalidateQueries: [{ key: academicKeys.gradebook("", "", "", "") }],
+      mutationOptions: {},
+    },
+  );
 }
 
 export function useFetchRoster(sectionId: string) {
@@ -233,7 +253,7 @@ export function useFetchRoster(sectionId: string) {
   );
 }
 
-export function useGenerateRoster(sectionId: string, term: string, year: string) {
+export function useGenerateRoster(sectionId: string, periodId: string) {
   return useApiMutation<{ message: string }, void>(
     API.ACADEMIC_ROSTER_GENERATE(sectionId),
     "post",
@@ -241,10 +261,10 @@ export function useGenerateRoster(sectionId: string, term: string, year: string)
       successMessage: "Roster generated!",
       invalidateQueries: [
         { key: academicKeys.roster(sectionId) },
-        { key: academicKeys.completion(sectionId, term) },
+        { key: academicKeys.completion(sectionId, periodId) },
       ],
       mutationOptions: {},
-      queryParams: { term, year },
+      queryParams: { periodId },
     },
   );
 }
@@ -274,7 +294,7 @@ export function useRejectRoster(id: string) {
 }
 
 export function usePublishRoster() {
-  return useApiMutation<{ message: string }, components["schemas"]["PublishRosterDto"]>(
+  return useApiMutation<{ message: string }, PublishRosterPayload>(
     API.ACADEMIC_ROSTER_PUBLISH,
     "post",
     {
@@ -356,11 +376,139 @@ export function useFetchAcademicAudit(params?: {
   );
 }
 
-export function useFetchCompletion(sectionId: string, term: string) {
+export function useFetchCompletion(sectionId: string, periodId: string) {
   return useFetchQuery<{ data: { complete: boolean; message?: string } }>(
     API.ACADEMIC_COMPLETION(sectionId),
-    academicKeys.completion(sectionId, term),
-    { term },
-    { enabled: !!sectionId && !!term },
+    academicKeys.completion(sectionId, periodId),
+    { periodId },
+    { enabled: !!sectionId && !!periodId },
+  );
+}
+
+// ── Academic Calendar ──
+
+export function useFetchAcademicYears() {
+  return useFetchQuery<{ data: AcademicYear[] }>(
+    API.ACADEMIC_YEARS,
+    academicKeys.years(),
+  );
+}
+
+export function useFetchAcademicYear(id: string) {
+  return useFetchQuery<{ data: AcademicYear }>(
+    API.ACADEMIC_YEAR(id),
+    academicKeys.year(id),
+    undefined,
+    { enabled: !!id },
+  );
+}
+
+export function useFetchCurrentAcademicYear() {
+  return useFetchQuery<{ data: AcademicYear | null }>(
+    API.ACADEMIC_YEAR_CURRENT,
+    academicKeys.currentYear(),
+  );
+}
+
+export function useCreateAcademicYear() {
+  return useApiMutation<{ data: AcademicYear }, CreateAcademicYearPayload>(
+    API.ACADEMIC_YEARS,
+    "post",
+    {
+      successMessage: "Academic year created!",
+      invalidateQueries: [{ key: academicKeys.years() }],
+      mutationOptions: {},
+    },
+  );
+}
+
+export function useUpdateAcademicYear(id: string) {
+  return useApiMutation<{ data: AcademicYear }, UpdateAcademicYearPayload>(
+    API.ACADEMIC_YEAR(id),
+    "patch",
+    {
+      successMessage: "Academic year updated!",
+      invalidateQueries: [
+        { key: academicKeys.years() },
+        { key: academicKeys.year(id) },
+        { key: academicKeys.currentYear() },
+      ],
+      mutationOptions: {},
+    },
+  );
+}
+
+export function useDeleteAcademicYear(id: string) {
+  return useApiMutation<{ message: string }, void>(
+    API.ACADEMIC_YEAR(id),
+    "delete",
+    {
+      successMessage: "Academic year deleted!",
+      invalidateQueries: [
+        { key: academicKeys.years() },
+        { key: academicKeys.currentYear() },
+      ],
+      mutationOptions: {},
+    },
+  );
+}
+
+export function useSetCurrentAcademicYear(id: string) {
+  return useApiMutation<{ data: AcademicYear }, void>(
+    API.ACADEMIC_YEAR_SET_CURRENT(id),
+    "post",
+    {
+      successMessage: "Current academic year updated!",
+      invalidateQueries: [
+        { key: academicKeys.years() },
+        { key: academicKeys.currentYear() },
+      ],
+      mutationOptions: {},
+    },
+  );
+}
+
+export function useCreatePeriod(yearId: string) {
+  return useApiMutation<{ data: AcademicPeriod }, CreatePeriodPayload>(
+    API.ACADEMIC_YEAR_PERIODS(yearId),
+    "post",
+    {
+      successMessage: "Period created!",
+      invalidateQueries: [
+        { key: academicKeys.years() },
+        { key: academicKeys.periods(yearId) },
+      ],
+      mutationOptions: {},
+    },
+  );
+}
+
+export function useUpdatePeriod(id: string) {
+  return useApiMutation<{ data: AcademicPeriod }, UpdatePeriodPayload>(
+    API.ACADEMIC_PERIOD(id),
+    "patch",
+    {
+      successMessage: "Period updated!",
+      invalidateQueries: [
+        { key: academicKeys.years() },
+        { key: academicKeys.period(id) },
+      ],
+      mutationOptions: {},
+    },
+  );
+}
+
+export function useDeletePeriod(id: string) {
+  return useApiMutation<{ message: string }, void>(
+    API.ACADEMIC_PERIOD(id),
+    "delete",
+    {
+      successMessage: "Period deleted!",
+      invalidateQueries: [
+        { key: academicKeys.years() },
+        { key: academicKeys.period(id) },
+      ],
+      mutationOptions: {},
+    },
   );
 }

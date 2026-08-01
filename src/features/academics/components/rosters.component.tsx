@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LoaderCircleIcon, Wand2Icon, CheckIcon, XIcon, SendIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
@@ -8,7 +8,7 @@ import { DetailItem } from "@/components/custom/detail-item";
 import { ConfirmDialog } from "@/features/schools/components/confirm-dialog.component";
 import { useAuthContext } from "@/lib/store";
 import { useFetchGrades, useFetchSections } from "@/features/classes/api/classes.api";
-import { useFetchRoster, useGenerateRoster, useApproveRoster, useRejectRoster, usePublishRoster } from "../api/academics.api";
+import { useFetchRoster, useGenerateRoster, useApproveRoster, useRejectRoster, usePublishRoster, useFetchAcademicYears } from "../api/academics.api";
 
 const ROSTER_STATUS_STYLES: Record<string, "default" | "secondary" | "success" | "destructive" | "warning"> = {
   DRAFT: "secondary",
@@ -19,13 +19,25 @@ const ROSTER_STATUS_STYLES: Record<string, "default" | "secondary" | "success" |
 };
 
 export function RostersComponent() {
-  const { branchId, year, term } = useAuthContext();
+  const { branchId, year } = useAuthContext();
 
   const { data: gradesData } = useFetchGrades();
   const grades = gradesData?.data ?? [];
 
+  const { data: yearsData } = useFetchAcademicYears();
+  const years = yearsData?.data ?? [];
+
   const [gradeId, setGradeId] = useState("");
   const [sectionId, setSectionId] = useState("");
+  const [periodId, setPeriodId] = useState("");
+
+  useEffect(() => {
+    if (periodId) return;
+    const current = years.find((y) => y.isCurrent) ?? years[0];
+    if (current?.periods?.[0]) {
+      setPeriodId(current.periods[0].id);
+    }
+  }, [years, periodId]);
 
   const { data: sectionsData } = useFetchSections(
     gradeId && branchId ? { gradeId, branchId, year } : undefined,
@@ -35,7 +47,7 @@ export function RostersComponent() {
   const { data: rosterData, isLoading, refetch } = useFetchRoster(sectionId);
   const roster = rosterData?.data;
 
-  const generateRoster = useGenerateRoster(sectionId, term, year);
+  const generateRoster = useGenerateRoster(sectionId, periodId);
   const approveRoster = useApproveRoster(roster?.id ?? "");
   const rejectRoster = useRejectRoster(roster?.id ?? "");
   const publishRoster = usePublishRoster();
@@ -52,7 +64,7 @@ export function RostersComponent() {
 
   const handlePublish = () => {
     publishRoster.mutate(
-      { term, year, sectionIds: [sectionId] },
+      { periodId, sectionIds: [sectionId] },
       { onSuccess: () => refetch() },
     );
   };
@@ -61,7 +73,7 @@ export function RostersComponent() {
     <div className="space-y-6">
       <Card>
         <CardContent className="pt-6">
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">Grade</label>
               <Select
@@ -99,6 +111,24 @@ export function RostersComponent() {
                 ))}
               </Select>
             </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Period</label>
+              <Select
+                value={periodId}
+                onChange={(e) => setPeriodId(e.target.value)}
+              >
+                {years.map((year) => (
+                  <optgroup key={year.id} label={year.name}>
+                    {year.periods.map((period) => (
+                      <option key={period.id} value={period.id}>
+                        {period.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -122,8 +152,8 @@ export function RostersComponent() {
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
-            <DetailItem label="Term" value={roster.term} />
-            <DetailItem label="Year" value={roster.year} />
+            <DetailItem label="Academic Year" value={roster.period?.academicYear.name ?? "-"} />
+            <DetailItem label="Period" value={roster.period?.name ?? "-"} />
             {roster.note && <DetailItem label="Note" value={roster.note} />}
 
             <div className="flex flex-wrap gap-2 pt-2">

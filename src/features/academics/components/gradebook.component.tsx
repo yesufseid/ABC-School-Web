@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SaveIcon, SendIcon, LoaderCircleIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CustomTable } from "@/components/custom/custom-table";
 import { useAuthContext } from "@/lib/store";
 import { useFetchGrades, useFetchSections } from "@/features/classes/api/classes.api";
-import { useFetchSlots, useFetchGradebook, useSubmitGradebookEntry, useSubmitResults } from "../api/academics.api";
+import { useFetchSlots, useFetchGradebook, useSubmitGradebookEntry, useSubmitResults, useFetchAcademicYears } from "../api/academics.api";
 import type { GradeCycle, GradebookStudent } from "../types/academics.types";
 
 function gradeCycleFromGrade(grade: number): GradeCycle {
@@ -112,7 +112,7 @@ function GradebookTable({
 }
 
 export function GradebookComponent() {
-  const { branchId, year, term: contextTerm } = useAuthContext();
+  const { branchId, year } = useAuthContext();
 
   const { data: gradesData } = useFetchGrades();
   const grades = gradesData?.data ?? [];
@@ -120,11 +120,22 @@ export function GradebookComponent() {
   const { data: slotsData } = useFetchSlots();
   const slots = slotsData?.data ?? [];
 
+  const { data: yearsData } = useFetchAcademicYears();
+  const years = yearsData?.data ?? [];
+
   const [gradeId, setGradeId] = useState("");
   const [sectionId, setSectionId] = useState("");
   const [subjectId, setSubjectId] = useState("");
   const [slotId, setSlotId] = useState("");
-  const [term, setTerm] = useState(contextTerm);
+  const [periodId, setPeriodId] = useState("");
+
+  useEffect(() => {
+    if (periodId) return;
+    const current = years.find((y) => y.isCurrent) ?? years[0];
+    if (current?.periods?.[0]) {
+      setPeriodId(current.periods[0].id);
+    }
+  }, [years, periodId]);
 
   const selectedGrade = grades.find((g) => g.id === gradeId);
 
@@ -142,7 +153,7 @@ export function GradebookComponent() {
     sectionId: sectionId || undefined,
     subjectId: subjectId || undefined,
     slotId: slotId || undefined,
-    term: term || undefined,
+    periodId: periodId || undefined,
   });
 
   const gradebookEntries = useMemo(
@@ -153,7 +164,7 @@ export function GradebookComponent() {
   const submitEntry = useSubmitGradebookEntry();
   const submitResults = useSubmitResults();
 
-  const resetKey = `${sectionId}-${subjectId}-${slotId}-${term}`;
+  const resetKey = `${sectionId}-${subjectId}-${slotId}-${periodId}`;
 
   const handleSave = (scores: Record<string, number>) => {
     const entries = Object.entries(scores).map(([studentId, score]) => ({
@@ -166,7 +177,7 @@ export function GradebookComponent() {
         sectionId,
         subjectId,
         slotId,
-        term,
+        periodId,
         entries,
       },
       {
@@ -178,7 +189,7 @@ export function GradebookComponent() {
   };
 
   const handleSubmitResults = () => {
-    submitResults.mutate({ sectionId, subjectId, slotId, term });
+    submitResults.mutate({ sectionId, subjectId, slotId, periodId });
   };
 
   return (
@@ -263,11 +274,20 @@ export function GradebookComponent() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Term</label>
-              <Select value={term} onChange={(e) => setTerm(e.target.value)}>
-                <option value="Term 1">Term 1</option>
-                <option value="Term 2">Term 2</option>
-                <option value="Term 3">Term 3</option>
+              <label className="text-sm font-medium text-foreground">Period</label>
+              <Select
+                value={periodId}
+                onChange={(e) => setPeriodId(e.target.value)}
+              >
+                {years.map((year) => (
+                  <optgroup key={year.id} label={year.name}>
+                    {year.periods.map((period) => (
+                      <option key={period.id} value={period.id}>
+                        {period.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
               </Select>
             </div>
           </div>
@@ -279,9 +299,9 @@ export function GradebookComponent() {
           <CardTitle className="text-sm font-medium">Gradebook</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {!sectionId || !subjectId || !slotId || !term ? (
+          {!sectionId || !subjectId || !slotId || !periodId ? (
             <p className="py-10 text-center text-sm text-muted-foreground">
-              Select a grade, section, subject, slot, and term to load the gradebook.
+              Select a grade, section, subject, slot, and period to load the gradebook.
             </p>
           ) : isLoading ? (
             <div className="flex items-center justify-center py-10">

@@ -36,6 +36,15 @@ export const API = {
   ACADEMIC_AUDIT: "/academics/audit",
   ACADEMIC_COMPLETION: (sectionId: string) => `/academics/completion/${sectionId}`,
 
+  ACADEMIC_YEARS: "/academics/academic-calendar/years",
+  ACADEMIC_YEAR: (id: string) => `/academics/academic-calendar/years/${id}`,
+  ACADEMIC_YEAR_CURRENT: "/academics/academic-calendar/years/current",
+  ACADEMIC_YEAR_SET_CURRENT: (id: string) =>
+    `/academics/academic-calendar/years/${id}/set-current`,
+  ACADEMIC_YEAR_PERIODS: (yearId: string) =>
+    `/academics/academic-calendar/years/${yearId}/periods`,
+  ACADEMIC_PERIOD: (id: string) => `/academics/academic-calendar/periods/${id}`,
+
   ATTENDANCE_STUDENTS: "/attendance/students",
   ATTENDANCE_STUDENTS_SECTION: (sectionId: string, date: string) =>
     `/attendance/students/section/${sectionId}/date/${date}`,

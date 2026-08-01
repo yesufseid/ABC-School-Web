@@ -61,19 +61,102 @@ export type Gradebook = {
   sectionId: string;
   subjectId: string;
   slotId: string;
-  term: string;
+  periodId: string;
   entries: GradebookStudent[];
 };
 
 export type Roster = {
   id: string;
   sectionId: string;
-  term: string;
-  year: string;
+  periodId: string;
+  period?: {
+    id: string;
+    name: string;
+    sequence: number;
+    type: AcademicPeriodType;
+    startDate: string;
+    endDate: string;
+    academicYear: {
+      id: string;
+      name: string;
+    };
+  };
   status: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "PUBLISHED";
   note?: string;
   createdAt: string;
   updatedAt: string;
+};
+
+export type AcademicCalendarType = "SEMESTER" | "TERM";
+export type AcademicPeriodType = "SEMESTER" | "TERM";
+export type AcademicYearStatus = "ACTIVE" | "COMPLETED" | "CLOSED";
+
+export type AcademicPeriod = {
+  id: string;
+  name: string;
+  sequence: number;
+  type: AcademicPeriodType;
+  startDate: string;
+  endDate: string;
+  academicYearId: string;
+  tenantId: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AcademicYear = {
+  id: string;
+  name: string;
+  calendarType: AcademicCalendarType;
+  startDate: string;
+  endDate: string;
+  status: AcademicYearStatus;
+  isCurrent: boolean;
+  tenantId: string;
+  createdAt: string;
+  updatedAt: string;
+  periods: AcademicPeriod[];
+};
+
+export type CreateAcademicYearPayload = {
+  name: string;
+  calendarType: AcademicCalendarType;
+  startDate: string;
+  endDate: string;
+  status?: AcademicYearStatus;
+  isCurrent?: boolean;
+};
+
+export type UpdateAcademicYearPayload = Partial<CreateAcademicYearPayload>;
+
+export type CreatePeriodPayload = {
+  name: string;
+  sequence: number;
+  type: AcademicPeriodType;
+  startDate: string;
+  endDate: string;
+};
+
+export type UpdatePeriodPayload = Partial<CreatePeriodPayload>;
+
+export type GradebookEntryBatchPayload = {
+  sectionId: string;
+  subjectId: string;
+  slotId: string;
+  periodId: string;
+  entries: { studentId: string; score: number }[];
+};
+
+export type SubmitResultsPayload = {
+  sectionId: string;
+  subjectId: string;
+  slotId: string;
+  periodId: string;
+};
+
+export type PublishRosterPayload = {
+  periodId: string;
+  sectionIds: string[];
 };
 
 export type Correction = {
