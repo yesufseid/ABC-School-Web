@@ -6,6 +6,7 @@ import { SubscriptionPlansCard } from "../components/subscription-plans-card.com
 import { RecentSubscriptionsCard } from "../components/recent-subscriptions-card.component";
 import { ListCard } from "../components/list-card.component";
 import { DashboardWelcome } from "../components/dashboard-welcome.component";
+import { DashboardCharts } from "../components/dashboard-charts.component";
 
 export function DashboardPage() {
   const user = useAppSelector((state) => state.auth.user);
@@ -36,6 +37,10 @@ export function DashboardPage() {
       {user && <DashboardWelcome userName={user.name} />}
 
       {summary.length > 0 && <SummaryStatsRow stats={summary} />}
+
+      {data.data.charts && data.data.charts.length > 0 && (
+        <DashboardCharts data={data.data.charts} />
+      )}
 
       {plans && plans.length > 0 && (
         <SubscriptionPlansCard data={plans} />

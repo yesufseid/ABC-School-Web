@@ -1,7 +1,11 @@
 import { useFetchQuery, useApiMutation } from "@/lib/api/query";
 import { API } from "@/lib/api/api.constants";
 import type { components } from "@/lib/api/generated/api-types";
-import type { Student, Section, Parent } from "../types/registration.types";
+import type {
+  Student,
+  Section,
+  ParentRecord,
+} from "../types/registration.types";
 
 export const studentKeys = {
   all: ["students"] as const,
@@ -114,7 +118,7 @@ export function useReAdmitStudent(id: string) {
 
 export function useSearchParents(params?: { phone?: string; name?: string }) {
   const hasQuery = !!(params?.phone || params?.name);
-  return useFetchQuery<{ data: Parent[] }>(
+  return useFetchQuery<{ data: ParentRecord[] }>(
     API.REGISTRATION_PARENT_SEARCH,
     parentKeys.search(JSON.stringify(params ?? {})),
     params,

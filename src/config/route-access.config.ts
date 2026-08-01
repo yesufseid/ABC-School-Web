@@ -17,7 +17,7 @@ export const ALL_ROLES: readonly UserRole[] = [
 export const ROUTE_ACCESS: Record<string, readonly UserRole[]> = {
   "/": ALL_ROLES,
   "/students": ["Owner", "Registrar", "Teacher"],
-  "/parents": ["Owner", "Principal"],
+  "/parents": ["Owner", "Principal", "Registrar"],
   "/teachers": ["Owner", "Registrar", "Teacher"],
   "/principals": ["Owner", "Principal"],
   "/materials": ["Owner", "Principal", "Teacher", "Student"],

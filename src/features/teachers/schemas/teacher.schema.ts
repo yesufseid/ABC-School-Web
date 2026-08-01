@@ -10,7 +10,15 @@ export const teacherSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   middleName: z.string().optional(),
   lastName: z.string().min(1, "Last name is required"),
-  phone: z.string().min(1, "Phone is required"),
+  phone: z
+    .string()
+    .min(1, "Phone is required")
+    .transform((val) => {
+      const digits = val.replace(/[\s\-()]/g, "");
+      const local = digits.replace(/^\+?251/, "");
+      const subscriber = local.replace(/^0/, "");
+      return `+251${subscriber}`;
+    }),
   email: z.string().optional(),
   address: z.string().min(1, "Address is required"),
   sex: z.enum(["Male", "Female"]),

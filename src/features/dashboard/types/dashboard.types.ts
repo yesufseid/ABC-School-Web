@@ -34,9 +34,16 @@ export type ListWidget = {
   rows: Record<string, string | number>[];
 };
 
+export type ChartWidget = {
+  type: "pie" | "bar" | "line";
+  title: string;
+  data: { name: string; value: number }[];
+};
+
 export type DashboardAnalytics = {
   summary: SummaryStat[];
   plans?: SubscriptionPlanStat[];
   recentSubscriptions?: RecentSubscription[];
   list?: ListWidget;
+  charts?: ChartWidget[];
 };

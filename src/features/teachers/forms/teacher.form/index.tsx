@@ -58,7 +58,7 @@ function TeacherFormContent({
       grades:
         teacher?.grades.map((grade) => ({
           gradeId: grade.gradeId,
-          subjectIds: [...grade.subjectIds],
+          subjectIds: grade.subjects.map((subject) => subject.subjectId),
         })) ?? [],
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -199,17 +199,18 @@ export function StudentDetailPage() {
                   key={parent.id ?? index}
                   className="space-y-2 rounded-xl border border-border/50 p-4"
                 >
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-foreground">
-                      {parent.name}
-                    </p>
-                    {parent.isPrimary && (
-                      <Badge variant="outline">Primary</Badge>
-                    )}
-                  </div>
-                  <DetailItem label="Phone" value={parent.phoneNumber} />
+                  <p className="text-sm font-medium text-foreground">
+                    {parent.parent.name}
+                  </p>
+                  <DetailItem label="Parent ID" value={parent.parent.parentId} />
                   <DetailItem label="Relation" value={parent.relation ?? "-"} />
-                  <DetailItem label="Address" value={parent.address ?? "-"} />
+                  <DetailItem label="Sex" value={parent.parent.sex ?? "-"} />
+                  <DetailItem label="Phone" value={parent.parent.phone ?? "-"} />
+                  <DetailItem label="Address" value={parent.parent.address ?? "-"} />
+                  <DetailItem
+                    label="Nationality"
+                    value={parent.parent.nationality ?? "-"}
+                  />
                 </div>
               ))}
             </div>

@@ -56,6 +56,37 @@ export const MOCK_DASHBOARD_ANALYTICS: DashboardAnalytics = {
       paidAmount: 60000,
     },
   ],
+  charts: [
+    {
+      type: "pie",
+      title: "Students by Sex",
+      data: [
+        { name: "Male", value: 312 },
+        { name: "Female", value: 288 },
+      ],
+    },
+    {
+      type: "bar",
+      title: "Revenue by Plan",
+      data: [
+        { name: "Basic", value: 40000 },
+        { name: "Premium", value: 140000 },
+        { name: "Enterprise", value: 74000 },
+      ],
+    },
+    {
+      type: "line",
+      title: "Admissions per Month",
+      data: [
+        { name: "2026-01", value: 24 },
+        { name: "2026-02", value: 31 },
+        { name: "2026-03", value: 28 },
+        { name: "2026-04", value: 42 },
+        { name: "2026-05", value: 37 },
+        { name: "2026-06", value: 51 },
+      ],
+    },
+  ],
 };
 
 function delay(ms: number) {

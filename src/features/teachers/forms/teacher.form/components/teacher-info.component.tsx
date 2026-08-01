@@ -1,6 +1,7 @@
 import { Controller } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { PhoneInput } from "@/components/custom/phone-input";
 import type { TeacherInfoFieldsProps } from "../types";
 
 export function TeacherInfoFields({
@@ -62,8 +63,7 @@ export function TeacherInfoFields({
           control={control}
           name="phone"
           render={({ field }) => (
-            <Input
-              type="tel"
+            <PhoneInput
               placeholder="e.g. +251911223344"
               aria-invalid={!!errors.phone}
               {...field}

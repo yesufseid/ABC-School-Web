@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { PhoneInput } from "@/components/custom/phone-input";
 import { useFetchSchoolDetail } from "../api/schools.api";
 import {
   schoolSchema,
@@ -233,10 +234,8 @@ function SchoolFormContent({
               control={control}
               name="ownerPhone"
               render={({ field }) => (
-                <Input
-                  type="tel"
+                <PhoneInput
                   placeholder="e.g. 0912345678"
-                  autoComplete="off"
                   aria-invalid={!!errors.ownerPhone}
                   {...field}
                 />

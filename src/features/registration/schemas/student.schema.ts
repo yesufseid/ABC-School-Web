@@ -1,7 +1,15 @@
 import { z } from "zod";
 
 export const parentSchema = z.object({
-  phoneNumber: z.string().min(1, "Phone number is required"),
+  phoneNumber: z
+    .string()
+    .min(1, "Phone number is required")
+    .transform((val) => {
+      const digits = val.replace(/[\s\-()]/g, "");
+      const local = digits.replace(/^\+?251/, "");
+      const subscriber = local.replace(/^0/, "");
+      return `+251${subscriber}`;
+    }),
   name: z.string().min(1, "Parent name is required"),
   sex: z.enum(["Male", "Female"]),
   address: z.string().min(1, "Address is required"),
@@ -25,7 +33,16 @@ const baseStudentSchema = z.object({
   nationality: z.string().min(1, "Nationality is required"),
   previousSchool: z.string().optional(),
   languagePreference: z.string().optional(),
-  phone: z.string().optional(),
+  phone: z
+    .string()
+    .optional()
+    .transform((val) => {
+      if (!val) return undefined;
+      const digits = val.replace(/[\s\-()]/g, "");
+      const local = digits.replace(/^\+?251/, "");
+      const subscriber = local.replace(/^0/, "");
+      return `+251${subscriber}`;
+    }),
 });
 
 export const studentSchema = baseStudentSchema.extend({

@@ -4,8 +4,9 @@ import { SearchIcon, PlusIcon, TrashIcon, LoaderCircleIcon } from "lucide-react"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { PhoneInput } from "@/components/custom/phone-input";
 import { useSearchParents } from "../../../api/registration.api";
-import type { Parent } from "../../../types/registration.types";
+import type { ParentRecord } from "../../../types/registration.types";
 import type { ParentsFieldsProps } from "../types";
 import type { ParentFormValues } from "../schema";
 
@@ -27,8 +28,7 @@ export function ParentsFields({
   remove,
 }: ParentsFieldsProps) {
   const [phone, setPhone] = useState("");
-  const [name, setName] = useState("");
-  const [query, setQuery] = useState<{ phone?: string; name?: string }>({});
+  const [query, setQuery] = useState<{ phone?: string }>({});
 
   const { data: searchData, isLoading: searching } = useSearchParents(
     Object.keys(query).length > 0 ? query : undefined,
@@ -36,24 +36,21 @@ export function ParentsFields({
   const results = searchData?.data ?? [];
 
   const handleSearch = () => {
-    if (phone.trim() || name.trim()) {
-      setQuery({
-        phone: phone.trim() || undefined,
-        name: name.trim() || undefined,
-      });
+    if (phone.trim()) {
+      setQuery({ phone: phone.trim() });
     } else {
       setQuery({});
     }
   };
 
-  const addResult = (parent: Parent) => {
+  const addResult = (parent: ParentRecord) => {
     append({
-      phoneNumber: parent.phoneNumber,
+      phoneNumber: parent.phone,
       name: parent.name,
       sex: parent.sex,
       address: parent.address ?? "",
       nationality: parent.nationality ?? "Ethiopian",
-      relation: parent.relation ?? "Guardian",
+      relation: "Guardian",
       isPrimary: fields.length === 0,
     });
   };
@@ -65,16 +62,6 @@ export function ParentsFields({
           Search existing parents
         </p>
         <div className="mt-3 flex items-end gap-2">
-          <div className="flex-1 space-y-2">
-            <label className="text-sm font-medium text-foreground">
-              Name
-            </label>
-            <Input
-              placeholder="e.g. Girma"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
           <div className="flex-1 space-y-2">
             <label className="text-sm font-medium text-foreground">
               Phone
@@ -99,13 +86,13 @@ export function ParentsFields({
           <div className="mt-3 divide-y divide-border rounded-lg border border-border/50">
             {results.map((parent) => (
               <div
-                key={parent.id ?? parent.phoneNumber}
+                key={parent.id ?? parent.phone}
                 className="flex items-center justify-between gap-2 px-3 py-2"
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{parent.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    {parent.phoneNumber} · {parent.relation ?? "Guardian"}
+                    {parent.phone}
                   </p>
                 </div>
                 <Button
@@ -197,8 +184,7 @@ export function ParentsFields({
                   <label className="text-sm font-medium text-foreground">
                     Phone
                   </label>
-                  <Input
-                    type="tel"
+                  <PhoneInput
                     placeholder="e.g. 0912345678"
                     aria-invalid={!!errors.parents?.[index]?.phoneNumber}
                     {...parentField}

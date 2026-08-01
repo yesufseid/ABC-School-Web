@@ -9,6 +9,7 @@ import { loginSchema } from "../schemas/login.schema";
 import type { LoginFormValues } from "../schemas/login.schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/custom/phone-input";
 
 export function LoginForm() {
   const dispatch = useAppDispatch();
@@ -74,9 +75,8 @@ export function LoginForm() {
           control={control}
           name="phoneNumber"
           render={({ field }) => (
-            <Input
+            <PhoneInput
               id="phoneNumber"
-              type="tel"
               placeholder="e.g. 0912345678"
               aria-invalid={!!errors.phoneNumber}
               {...field}

@@ -10,6 +10,33 @@ export type Parent = {
   studentIds?: string[];
 };
 
+export type ParentRecord = {
+  id: string;
+  parentId: string;
+  name: string;
+  sex: "Male" | "Female";
+  address: string;
+  nationality: string;
+  phone: string;
+  mustChangePassword: boolean;
+  verifiedAt: string | null;
+  userId: string;
+  profileId: string;
+  tenantId: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type StudentParentLink = {
+  id: string;
+  relation: "Father" | "Mother" | "Guardian" | "Other";
+  studentId: string;
+  parentId: string;
+  createdAt: string;
+  updatedAt: string;
+  parent: ParentRecord;
+};
+
 export type Student = {
   id: string;
   firstName: string;
@@ -25,7 +52,7 @@ export type Student = {
   previousSchool?: string;
   languagePreference?: string;
   phone?: string;
-  parents: Parent[];
+  parents: StudentParentLink[];
   branchId: string;
   sectionId: string | null;
   status: string;

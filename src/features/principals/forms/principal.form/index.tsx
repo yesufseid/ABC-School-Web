@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { PhoneInput } from "@/components/custom/phone-input";
 import { useAuthContext } from "@/lib/store";
 import { useFetchBranches } from "@/features/schools/api/schools.api";
 import { useFetchPrincipal } from "../../api/principals.api";
@@ -175,8 +176,7 @@ function PrincipalFormContent({
               control={control}
               name="phone"
               render={({ field }) => (
-                <Input
-                  type="tel"
+                <PhoneInput
                   placeholder="e.g. +251911223344"
                   aria-invalid={!!errors.phone}
                   {...field}

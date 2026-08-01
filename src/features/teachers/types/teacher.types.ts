@@ -1,6 +1,14 @@
+export type TeacherGradeSubject = {
+  id: string;
+  name: string;
+  subjectId: string;
+};
+
 export type TeacherGradeLink = {
+  id: string;
+  grade: string | null;
   gradeId: string;
-  subjectIds: string[];
+  subjects: TeacherGradeSubject[];
 };
 
 export type Teacher = {

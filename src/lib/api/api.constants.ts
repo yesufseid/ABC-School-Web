@@ -61,6 +61,8 @@ export const API = {
     `/registration/student/${id}/re-admit`,
 
   REGISTRATION_PARENT_SEARCH: "/registration/parent/search",
+  REGISTRATION_PARENTS: "/registration/parent",
+  REGISTRATION_PARENT: (id: string) => `/registration/parent/${id}`,
 
   REGISTRATION_SECTIONS: "/registration/sections",
   REGISTRATION_SECTION: (id: string) => `/registration/sections/${id}`,

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Controller } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { PhoneInput } from "@/components/custom/phone-input";
 import type { StudentInfoFieldsProps } from "../types";
 
 function Field({
@@ -195,7 +196,7 @@ export function StudentInfoFields({ control, errors }: StudentInfoFieldsProps) {
         name="phone"
         render={({ field }) => (
           <Field label="Phone (optional)">
-            <Input type="tel" placeholder="e.g. 0912345678" {...field} />
+            <PhoneInput placeholder="e.g. 0912345678" {...field} />
           </Field>
         )}
       />

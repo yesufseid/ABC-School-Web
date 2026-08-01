@@ -68,11 +68,6 @@ export function TeacherDetailPage() {
   const teacherName = `${teacher.firstName} ${teacher.middleName ? `${teacher.middleName} ` : ""}${teacher.lastName}`;
   const branch = branches.find((b) => b.id === teacher.branchId);
   const gradeMap = new Map(grades.map((g) => [g.id, g]));
-  const subjectMap = new Map(
-    grades.flatMap((grade) =>
-      grade.subjects.map((subject) => [subject.id, subject]),
-    ),
-  );
 
   const handleFormSubmit = (values: TeacherFormValues) => {
     updateTeacher.mutate(values, {
@@ -169,8 +164,8 @@ export function TeacherDetailPage() {
             <div className="space-y-4">
               {teacher.grades.map((gradeLink, index) => {
                 const grade = gradeMap.get(gradeLink.gradeId);
-                const subjectNames = gradeLink.subjectIds
-                  .map((subjectId) => subjectMap.get(subjectId)?.name)
+                const subjectNames = gradeLink.subjects
+                  .map((subject) => subject.name)
                   .filter(Boolean);
                 return (
                   <div
@@ -178,7 +173,7 @@ export function TeacherDetailPage() {
                     className="space-y-2 rounded-xl border border-border/50 p-4"
                   >
                     <p className="text-sm font-medium text-foreground">
-                      Grade {grade?.grade ?? gradeLink.gradeId}
+                      Grade {gradeLink.grade ?? grade?.grade ?? gradeLink.gradeId}
                     </p>
                     <div className="flex flex-wrap gap-1.5">
                       {subjectNames.length === 0 ? (

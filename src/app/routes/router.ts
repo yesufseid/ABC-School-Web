@@ -17,16 +17,6 @@ function lazyPage<M extends Record<string, ComponentType>>(
   });
 }
 
-function comingSoonRoute(title: string) {
-  return {
-    lazy: lazyPage(
-      () => import("@/features/shared/pages/coming-soon.page"),
-      "ComingSoonPage",
-    ),
-    handle: { title },
-  };
-}
-
 export const router = createBrowserRouter([
   {
     path: "auth",
@@ -90,7 +80,25 @@ export const router = createBrowserRouter([
           {
             path: "parents",
             Component: createRoleRoute(ROUTE_ACCESS["/parents"]),
-            children: [{ index: true, ...comingSoonRoute("Parents") }],
+            children: [
+              {
+                index: true,
+                lazy: lazyPage(
+                  () => import("@/features/parents/pages/parents.page"),
+                  "ParentsPage",
+                ),
+              },
+              {
+                path: ":id",
+                lazy: lazyPage(
+                  () =>
+                    import(
+                      "@/features/parents/pages/parent-detail.page"
+                    ),
+                  "ParentDetailPage",
+                ),
+              },
+            ],
           },
           {
             path: "teachers",

@@ -1,26 +1,38 @@
 import { BellIcon, LaptopIcon } from "lucide-react";
 import { UserMenu } from "@/components/custom/user-menu";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
-export function AppHeader() {
+type AppHeaderProps = {
+  collapsed: boolean;
+  onToggleSidebar: () => void;
+};
+
+export function AppHeader({ collapsed, onToggleSidebar }: AppHeaderProps) {
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-border/50 bg-background/80 px-6 backdrop-blur-xl">
       <button
         type="button"
-        className="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        onClick={onToggleSidebar}
+        className={cn(
+          "flex size-9 items-center justify-center rounded-full transition-colors",
+          collapsed
+            ? "bg-primary/20 text-primary"
+            : "bg-muted text-muted-foreground hover:text-foreground",
+        )}
         aria-label="Toggle sidebar"
       >
         <LaptopIcon className="size-4" />
       </button>
 
       <div className="flex items-center gap-2">
-        <div className="flex size-8 items-center justify-center rounded-full bg-primary/15 ring-1 ring-primary/30">
-          <span className="text-[10px] font-bold tracking-tight text-primary">
-            AC
-          </span>
-        </div>
+        <img
+          src="/logo.png"
+          alt="ABC-School logo"
+          className="size-8 rounded-full object-cover ring-1 ring-primary/30"
+        />
         <span className="text-sm font-semibold tracking-wide text-foreground">
-          Axis Connect
+          ABC-School
         </span>
       </div>
 
