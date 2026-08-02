@@ -87,6 +87,10 @@ export const API = {
 
   TEACHERS: "/teacher",
   TEACHER: (id: string) => `/teacher/${id}`,
+  TEACHER_ME: "/teacher/me",
+  TEACHER_ME_SECTIONS: "/teacher/me/sections",
+  TEACHER_ME_STUDENTS: "/teacher/me/students",
+  TEACHER_ME_TIMETABLE: "/teacher/me/timetable",
   TEACHER_GRADES: "/teacher/grades",
   TEACHER_GRADE: (id: string) => `/teacher/grades/${id}`,
 

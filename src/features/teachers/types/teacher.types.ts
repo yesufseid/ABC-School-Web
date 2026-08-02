@@ -27,3 +27,49 @@ export type Teacher = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type MySection = {
+  sectionId: string;
+  sectionName: string;
+  grade: number;
+  subjectId: string;
+  subjectName: string;
+  isHomeroom: boolean;
+};
+
+export type MyTeacher = Teacher & {
+  sections: MySection[];
+  summary: {
+    mySections: number;
+    myStudents: number;
+    mySubjects: number;
+    weeklyPeriods: number;
+  };
+};
+
+export type MyStudent = {
+  studentId: string;
+  studentCode: string;
+  studentName: string;
+  sectionId: string;
+  sectionName: string;
+  grade: number;
+  photoUrl?: string | null;
+};
+
+export type MyPeriod = {
+  periodNumber: number;
+  startTime: string;
+  endTime: string;
+  subjectId?: string;
+  subjectName?: string;
+  sectionId?: string;
+  sectionName?: string;
+  grade?: number;
+  year?: string;
+};
+
+export type MyTimetableDay = {
+  dayOfWeek: string;
+  periods: MyPeriod[];
+};

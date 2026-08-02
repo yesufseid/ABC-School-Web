@@ -283,6 +283,74 @@ export const router = createBrowserRouter([
               },
             ],
           },
+          {
+            path: "teacher",
+            Component: createRoleRoute(ROUTE_ACCESS["/teacher"]),
+            children: [
+              {
+                index: true,
+                loader: () => redirect("/teacher/classes"),
+              },
+              {
+                path: "classes",
+                lazy: lazyPage(
+                  () =>
+                    import("@/features/teachers/pages/my-classes.page"),
+                  "MyClassesPage",
+                ),
+              },
+              {
+                path: "students",
+                lazy: lazyPage(
+                  () =>
+                    import(
+                      "@/features/teachers/pages/my-students.page"
+                    ),
+                  "MyStudentsPage",
+                ),
+              },
+              {
+                path: "timetable",
+                lazy: lazyPage(
+                  () =>
+                    import(
+                      "@/features/teachers/pages/my-timetable.page"
+                    ),
+                  "MyTimetablePage",
+                ),
+              },
+              {
+                path: "attendance",
+                lazy: lazyPage(
+                  () =>
+                    import(
+                      "@/features/teachers/pages/my-attendance.page"
+                    ),
+                  "MyAttendancePage",
+                ),
+              },
+              {
+                path: "gradebook",
+                lazy: lazyPage(
+                  () =>
+                    import(
+                      "@/features/teachers/pages/my-gradebook.page"
+                    ),
+                  "MyGradebookPage",
+                ),
+              },
+              {
+                path: "calendar",
+                lazy: lazyPage(
+                  () =>
+                    import(
+                      "@/features/teachers/pages/my-calendar.page"
+                    ),
+                  "MyCalendarPage",
+                ),
+              },
+            ],
+          },
         ],
       },
     ],

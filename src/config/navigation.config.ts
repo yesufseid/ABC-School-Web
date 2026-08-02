@@ -33,6 +33,42 @@ export const NAV_ITEMS: NavItem[] = [
     end: true,
   },
   {
+    label: "My Classes",
+    to: "/teacher/classes",
+    icon: GraduationCapIcon,
+    roles: ROUTE_ACCESS["/teacher/classes"],
+  },
+  {
+    label: "My Students",
+    to: "/teacher/students",
+    icon: UsersIcon,
+    roles: ROUTE_ACCESS["/teacher/students"],
+  },
+  {
+    label: "My Timetable",
+    to: "/teacher/timetable",
+    icon: CalendarIcon,
+    roles: ROUTE_ACCESS["/teacher/timetable"],
+  },
+  {
+    label: "My Attendance",
+    to: "/teacher/attendance",
+    icon: ClipboardCheckIcon,
+    roles: ROUTE_ACCESS["/teacher/attendance"],
+  },
+  {
+    label: "My Gradebook",
+    to: "/teacher/gradebook",
+    icon: LibraryIcon,
+    roles: ROUTE_ACCESS["/teacher/gradebook"],
+  },
+  {
+    label: "My Calendar",
+    to: "/teacher/calendar",
+    icon: CalendarIcon,
+    roles: ROUTE_ACCESS["/teacher/calendar"],
+  },
+  {
     label: "Students",
     to: "/students",
     icon: GraduationCapIcon,

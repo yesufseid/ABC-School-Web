@@ -1,7 +1,13 @@
 import { useFetchQuery, useApiMutation } from "@/lib/api/query";
 import { API } from "@/lib/api/api.constants";
 import type { components } from "@/lib/api/generated/api-types";
-import type { Teacher } from "../types/teacher.types";
+import type {
+  Teacher,
+  MyTeacher,
+  MySection,
+  MyStudent,
+  MyTimetableDay,
+} from "../types/teacher.types";
 
 export const teacherKeys = {
   all: ["teachers"] as const,
@@ -10,6 +16,10 @@ export const teacherKeys = {
     [...teacherKeys.lists(), params] as const,
   details: () => [...teacherKeys.all, "detail"] as const,
   detail: (id: string) => [...teacherKeys.details(), id] as const,
+  me: () => [...teacherKeys.all, "me"] as const,
+  meSections: () => [...teacherKeys.me(), "sections"] as const,
+  meStudents: () => [...teacherKeys.me(), "students"] as const,
+  meTimetable: () => [...teacherKeys.me(), "timetable"] as const,
 };
 
 export function useFetchTeachers() {
@@ -22,6 +32,31 @@ export function useFetchTeacher(id: string) {
     teacherKeys.detail(id),
     undefined,
     { enabled: !!id },
+  );
+}
+
+export function useFetchMyTeacher() {
+  return useFetchQuery<{ data: MyTeacher }>(API.TEACHER_ME, teacherKeys.me());
+}
+
+export function useFetchMySections() {
+  return useFetchQuery<{ data: MySection[] }>(
+    API.TEACHER_ME_SECTIONS,
+    teacherKeys.meSections(),
+  );
+}
+
+export function useFetchMyStudents() {
+  return useFetchQuery<{ data: MyStudent[] }>(
+    API.TEACHER_ME_STUDENTS,
+    teacherKeys.meStudents(),
+  );
+}
+
+export function useFetchMyTimetable() {
+  return useFetchQuery<{ data: MyTimetableDay[] }>(
+    API.TEACHER_ME_TIMETABLE,
+    teacherKeys.meTimetable(),
   );
 }
 
